@@ -19,7 +19,7 @@ Abstract of the project
 # Abstract
 The aim of the project is to develop a virtual musical instrument for an artistic installation, performance and with educational purposes.
 The settings consists of a camera, a system of loudspeakers and a screen.
-The system analizes the movements and gestures of the user in order to generate music mapping some features (pitch, tremolo effect,...) and involving the player and the audience with a visual representation on a a screen.
+The system analizes the movements and gestures of the user in order to generate music mapping some features (pitch, tremolo effect,...) and involving the player and the audience with a visual representation on a screen.
 The user stands in front of the camera and moves the body in order to control the virtual instrument.
 With the hands it controls the melody generation (pitch, the volume and the tremolo) while the entire body it manages higher level music parameters like harmony and rhythm and audio FX.
 The visual representation reacts to the inputs given by the camera and shows the notes in a 
