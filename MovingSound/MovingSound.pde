@@ -51,11 +51,15 @@ void mousePressed() {
   }
   note.add(new Nota(25*duration, delta_h, width, y));
   timeOn = millis();
+  print(note.size());
 }
 
 void mouseReleased() {
+  duration = minDuration;
+  println(note.get(note.size()-1).getFlag());
+  note.get(note.size()-1).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag1
+  println(note.get(note.size()-1).getFlag());
   
-  note.get(note.size()).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag
   /*timeOff = millis();
   duration = (timeOff - timeOn)/1000; //durata in secondi tra noteOn e noteOff
   if(duration < minDuration){
