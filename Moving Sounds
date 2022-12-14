@@ -19,15 +19,15 @@ Abstract of the project
 # Abstract
 The aim of the project is to develop a virtual musical instrument for an artistic installation, performance and with educational purposes.
 The settings consists of a camera, a system of loudspeakers and a screen.
-The system analizes the movements and gestures of the user in order to generate music mapping some features (pitch, tremolo effect,...) and involving the player and the audience with a visual representation on a screen.
-The user stands in front of the camera and moves his body in order to control the virtual instrument.
-The movement of the hands controls the melody generation and its parameters (pitch, the volume and the tremolo) while the entire body manages higher level music parameters like harmony, rhythm and audio FX.
+The system analizes the movements and gestures of the user in order to generate music mapping some features (pitch, tremolo effect,...) and involving the player and the audience with a visual representation on a a screen.
+The user stands in front of the camera and moves the body in order to control the virtual instrument.
+With the hands it controls the melody generation (pitch, the volume and the tremolo) while the entire body it manages higher level music parameters like harmony and rhythm and audio FX.
 The visual representation reacts to the inputs given by the camera and shows the notes in a 
 
 ## Artistic vision
-[Insert here a short description of the artistic vision of your project. What is your audience target? What is the artistic idea you want to convey? The vision can change during the project, but it is important you have one before starting to code]
-## Prototype after the hackathon
-_Your project should start with a prototype that will implement only the very basic functionalities of your project, and it will serve as a "proof of concept" of your vision._
+The idea is that anyone moving his body can be involved by generating music. 
+It can be used by an artists in order to make his performance more appealing thanks to the graphic visualization, but it can also have educational purposes in order to teach the sounds of the different grades of the scale
+## Prototype after the hackathon 
 [Please insert there a bullet point description of the basic functionalities you expect to implement for the first part]
 
 # Final project
