@@ -213,10 +213,10 @@ if __name__ == "__main__":
 
 			# argparse helps writing user-friendly commandline interfaces
 			parser = argparse.ArgumentParser()
-			# OSC server ip
-			parser.add_argument("--ip", default='127.0.0.1', help="The ip of the OSC server")
-			# OSC server port (check on SuperCollider)
-			parser.add_argument("--port", type=int, default=57120, help="The port the OSC server is listening on")
+			# OSC server ip: '127.0.0.1'
+			parser.add_argument("--ip", default='192.168.113.27', help="The ip of the OSC server")
+			# OSC server port (check on SuperCollider) 57120
+			parser.add_argument("--port", type=int, default=7400, help="The port the OSC server is listening on")
 
 			# Parse the arguments
 			args = parser.parse_args()
@@ -225,10 +225,13 @@ if __name__ == "__main__":
 			client = udp_client.SimpleUDPClient(args.ip, args.port)
 
 		# Stop OSC communication and sound
-		if keypress == ord('q'):
+		if START_SOUND:
 
 			# Send OSC message to stop the synth
-			client.send_message("/synth_control", ['stop'])
+			freq = (c_x/width_roi)
+			amp = (c_y/height_roi)
+			client.send_message("freq", freq)
+			client.send_message("amp", amp)
 
 # free up memory
 camera.release()
