@@ -17,3 +17,6 @@ joblib
 pandas
 tensorflow
 scikit-learn
+
+# hand detection
+mediapipe
