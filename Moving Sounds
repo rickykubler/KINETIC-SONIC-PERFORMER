@@ -28,7 +28,10 @@ The visual representation reacts to the inputs given by the camera and shows the
 The idea is that anyone moving his body can be involved by generating music. 
 It can be used by an artists in order to make his performance more appealing thanks to the graphic visualization, but it can also have educational purposes in order to teach the sounds of the different grades of the scale
 ## Prototype after the hackathon 
-[Please insert there a bullet point description of the basic functionalities you expect to implement for the first part]
+- Detection of open or close (sound on/off) hand with machine learning;
+- Mapping the position in the 2D spaces: on x_axis the volume/tremolo effect and on the y _axis the pitch
+- Visualization: a simple piano roll that shows the played notes
+- Sounds: real time generation by the use of Max8
 
 # Final project
 [Please insert here a bullet point description of the functionalities you expect to implement for the final presentation of the project. This description is a draft and will serve for the teacher to help you find the right dimension (i.e., number and type of functionalities) for the poroject] 
