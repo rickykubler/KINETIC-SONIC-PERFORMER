@@ -2,9 +2,10 @@ int y;
 int flag;
 int delta_h;
 int rectY;
-float timeOn;
-float timeOff;
+int timeOn;
+int timeOff;
 float duration;
+float minDuration;
 float easing = 0.05;
 ArrayList<Nota> note = new ArrayList<Nota>();
 
@@ -16,6 +17,7 @@ void setup() {
   rectY = 0;
   timeOn = 0;
   timeOff = 0;
+  minDuration = 0.2;//durata in secondi minima della nota
 }
 
 void draw() {
@@ -32,6 +34,10 @@ background(255);
   
   //Disegna le note sotto forma di rettangoli
   for (Nota i : note) { 
+    if(i.getFlag() == true){
+      duration = millis() - timeOn;
+      i.updateDuration(duration);
+    }
     i.display();
     i.move();
    }
@@ -40,13 +46,20 @@ ellipse (width-50, y, 50, 50);
 }
 
 void mousePressed() {
-  note.add(new Nota(100, delta_h, width, y));
+  if(duration < minDuration){
+    duration = minDuration;
+  }
+  note.add(new Nota(25*duration, delta_h, width, y));
   timeOn = millis();
 }
 
 void mouseReleased() {
-  //note.add(new Nota(100, delta_h, width, y));
-  timeOff = millis();
-  duration = timeOff - timeOn;
-  println(duration/1000);
+  
+  note.get(note.size()).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag
+  /*timeOff = millis();
+  duration = (timeOff - timeOn)/1000; //durata in secondi tra noteOn e noteOff
+  if(duration < minDuration){
+    duration = minDuration;
+  }
+  println(duration);*/
 }
