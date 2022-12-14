@@ -22,7 +22,7 @@ The settings consists of a camera, a system of loudspeakers and a screen.
 The system analizes the movements and gestures of the user in order to generate music mapping some features (pitch, tremolo effect,...) and involving the player and the audience with a visual representation on a a screen.
 The user stands in front of the camera and moves the body in order to control the virtual instrument.
 With the hands it controls the melody generation (pitch, the volume and the tremolo) while the entire body it manages higher level music parameters like harmony and rhythm and audio FX.
-The visual representation reacts to the inputs given by the camera and shows the notes in a 
+The visual representation reacts to the inputs given by the camera and shows the notes in a 2D or 3D space.
 
 ## Artistic vision
 The idea is that anyone moving his body can be involved by generating music. 
@@ -30,9 +30,12 @@ It can be used by an artists in order to make his performance more appealing tha
 ## Prototype after the hackathon 
 - Detection of open or close (sound on/off) hand with machine learning;
 - Mapping the position in the 2D spaces: on x_axis the volume/tremolo effect and on the y _axis the pitch
-- Visualization: a simple piano roll that shows the played notes
+- Visualization: a simple piano roll that shows the played notes 
 - Sounds: real time generation by the use of Max8
 
 # Final project
-[Please insert here a bullet point description of the functionalities you expect to implement for the final presentation of the project. This description is a draft and will serve for the teacher to help you find the right dimension (i.e., number and type of functionalities) for the poroject] 
+- More detailed image processing 
+- More detailed control on the synthetizer and on the filter we can use
+- Eleaborated graphic visualization 
+- Chord generation through through melodic analysis
 
