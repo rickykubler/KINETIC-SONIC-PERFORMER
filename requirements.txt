@@ -1,4 +1,5 @@
 # TO ACTIVATE THE VIRTUAL ENVIROMENT ---> .\project-venv\Scripts\Activate.ps1
+# TO CREATE THE ENV (windows) py -m venv project-venv; (mac) -m venv project-venv
 # TO UPGRADE PIP ---> python.exe -m pip install --upgrade pip
 # TO INSTALL THE PACKAGES ---> pip install -r .\requirements.txt
 # link: https://docs.google.com/document/d/1GxJ8pgdAnah1K2ExN9J4gN-SvlEsH0420-Y75BbFTi4/edit#heading=h.bihdr7ds51wm
