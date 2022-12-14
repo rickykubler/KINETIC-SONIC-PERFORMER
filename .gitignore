@@ -1,2 +1,2 @@
-
-project-venv/pyvenv.cfg
+*.pyc
+project-venv\
