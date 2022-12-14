@@ -1,1 +1,2 @@
-.project-venv/**
+project-venv
+*.pyc
