@@ -3,6 +3,7 @@
 # TO UPGRADE PIP ---> python.exe -m pip install --upgrade pip
 # TO INSTALL THE PACKAGES ---> pip install -r .\requirements.txt
 # link: https://docs.google.com/document/d/1GxJ8pgdAnah1K2ExN9J4gN-SvlEsH0420-Y75BbFTi4/edit#heading=h.bihdr7ds51wm
+# TO UPDATE JUPITER pip install --ignore-installed --upgrade jupyter
 numpy
 librosa
 soundfile
@@ -20,3 +21,4 @@ scikit-learn
 
 # hand detection
 mediapipe
+pygame
