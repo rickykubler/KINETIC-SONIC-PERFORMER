@@ -1,9 +1,14 @@
+import oscP5.*; 
+import netP5.*;
+
+OscP5 oscP5;
 ArrayList<Nota> note = new ArrayList<Nota>();
+
+float inputOSC;
 
 float my;
 
 float y;
-int flag;
 int delta_h;
 int numbers_of_note = 7;
 float[] step = new float [numbers_of_note];
@@ -16,6 +21,9 @@ float easing = 0.25;
 void setup() {
   size(500,500);
   //fullScreen();
+  
+  oscP5 = new OscP5(this, 12000);   //listening
+  
   delta_h = height/numbers_of_note;
   y = delta_h; //
   
@@ -127,3 +135,28 @@ void mouseReleased() {
         else
             return val1;       
     }
+    
+/*
+incoming osc message are forwarded to the oscEvent method.
+oscEvent() runs in the background, so whenever a message arrives,
+it is input to this method as the "theOscMessage" argument
+*/
+void oscEvent(OscMessage theOscMessage)
+{
+  println("the Check");
+   
+ if(theOscMessage.checkAddrPattern("/stream1")==true)
+ {
+       inputOSC = theOscMessage.get(0).floatValue();
+       /*
+         there is only one UDP input, but with the prefixes, you can have multiple streams that are unpacked seperately
+         the .get() method starts at 0, will return items in a list seperated by spaces
+         there are also .floatValue() .stringValue and so on
+          
+         the oscP5 library has more methods for checking the format of your input stream, but you should know what
+         you are sending and be able to just use the right methods without checking first
+          
+       */
+ }
+    
+}
