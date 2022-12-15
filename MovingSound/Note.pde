@@ -21,15 +21,19 @@ class Nota
  
   void display() {
     rectMode(CORNER);  // Set rectMode to CENTER
-      rect(xpos, ypos, w, h);
+    fill(255, 0, 0);
+    rect(xpos, ypos, w, h);
     }
+    
   boolean getFlag(){
   return modifica;
   }
+  
   void setFlag(){
     modifica = false;  
   }
+  
   void updateDuration(float duration){
-    w = 25*duration;
+    w = frameRate*(duration/1000);
   }
 }
