@@ -734,7 +734,7 @@
 					"numoutlets" : 4,
 					"outlettype" : [ "", "", "", "" ],
 					"patching_rect" : [ 672.666672110557556, 42.000000238418579, 100.0, 35.0 ],
-					"text" : "route play amp freq"
+					"text" : "route on amp freq"
 				}
 
 			}

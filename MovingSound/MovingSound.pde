@@ -14,8 +14,8 @@ float minDuration = 0.2; //durata in secondi minima della nota
 float easing = 0.25;
 
 void setup() {
-  //size(500,500);
-  fullScreen();
+  size(500,500);
+  //fullScreen();
   delta_h = height/numbers_of_note;
   y = delta_h; //
   
@@ -48,7 +48,7 @@ background(255);
     if(i.getFlag() == true){
       i.updateDuration(millis() - timeOn);
     }
-    //i.move();
+    i.move();
     i.display();
    }
    
