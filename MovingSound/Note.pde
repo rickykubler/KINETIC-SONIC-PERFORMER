@@ -1,18 +1,17 @@
 class Nota 
 {
-  int w; // single bar width - si incrementa quando note ON
+  boolean modifica;
+  float w; // single bar width - si incrementa quando note ON
   float xpos; // rect xposition - scorre
   float h; // rect height - fissa
   float ypos ; // rect yposition - una volta nata non varia ed e' la stessa pos del cerchio
  
-  Nota(int iw, int ih, float ixp, float iyp) {
+  Nota(float iw, int ih, float ixp, float iyp) {
     w = iw;
     xpos = ixp;
     h = ih;
     ypos = iyp;
-    
-    //this.move();
-    //this.display();
+    modifica = true;
   }
  
   void move () {
@@ -22,6 +21,19 @@ class Nota
  
   void display() {
     rectMode(CORNER);  // Set rectMode to CENTER
-      rect(xpos, ypos, w, h);
+    fill(255, 0, 0);
+    rect(xpos, ypos, w, h);
     }
+    
+  boolean getFlag(){
+  return modifica;
+  }
+  
+  void setFlag(){
+    modifica = false;  
+  }
+  
+  void updateDuration(float duration){
+    w = frameRate*(duration/1000);
+  }
 }

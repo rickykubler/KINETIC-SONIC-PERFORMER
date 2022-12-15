@@ -60,12 +60,12 @@ if __name__ == "__main__":
 	# initialize num of frames
 	num_frames = 0
 
-	# keep looping, until interrupted
+	# keep looping, until interrupted   
 	while True:
-		# get the current frame
+		# get the current frame     grabbed=true     frame=immagine corrente
 		(grabbed, frame) = camera.read()
 
-		# resize the frame
+		# resize the frame     modifica le dimensioni mantenendo le proporzioni, passando o width o height
 		frame = imutils.resize(frame, width=700)
 
 		# flip the frame so that it is not the mirror view
@@ -98,7 +98,7 @@ if __name__ == "__main__":
 			# check whether hand region is segmented
 			if hand is not None:
 				# if yes, unpack the thresholded image and
-				# segmented region
+				# segmented region    thresholded è l'immagine in bianco e nero, segmented sono i punti del contorno
 				(thresholded, segmented) = hand
 
 				# draw the segmented region and display the frame
