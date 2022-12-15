@@ -20,7 +20,7 @@ class Nota
   }
  
   void display() {
-    rectMode(CORNER);  // Set rectMode to CENTER
+    rectMode(CENTER);  // Set rectMode to CENTER
     fill  (32,178,170);
     rect(xpos, ypos, w, h);
     }

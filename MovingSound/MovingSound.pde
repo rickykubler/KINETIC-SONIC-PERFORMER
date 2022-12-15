@@ -7,19 +7,21 @@ int flag;
 int delta_h;
 int numbers_of_note = 7;
 float[] step = new float [numbers_of_note];
+float[] step_ = new float [numbers_of_note];
 
 int timeOn = 0;
 float minDuration = 0.2; //durata in secondi minima della nota
 float easing = 0.25;
 
 void setup() {
-  size(500,500);
-  //fullScreen();
+  //size(500,500);
+  fullScreen();
   delta_h = height/numbers_of_note;
   y = delta_h; //
   
   for (int i=0; i < numbers_of_note; i++) {         
   step[i] = i*delta_h;
+  step_[i] = i*delta_h+delta_h/2;
 }
 
 }
@@ -33,7 +35,7 @@ background(255);
   float dy = targetY - y_s;
   y_s += dy * easing;*/
   
-  y = findClosest(step, targetY);
+  y = findClosest(step_, targetY);
   
     //Suddividi in 12 il foglio.
   for (float i : step){
@@ -46,7 +48,7 @@ background(255);
     if(i.getFlag() == true){
       i.updateDuration(millis() - timeOn);
     }
-    i.move();
+    //i.move();
     i.display();
    }
    
