@@ -5,7 +5,7 @@ OscP5 oscP5;
 ArrayList<Nota> note = new ArrayList<Nota>();
 
 float inputOSC;
-
+boolean handOpen, handClosed;
 float my;
 
 float y;
@@ -38,11 +38,6 @@ void draw() {
 background(255);
 
   float targetY = mouseY;
-  
-  /*float y_s=0;
-  float dy = targetY - y_s;
-  y_s += dy * easing;*/
-  
   y = findClosest(step_, targetY);
   
     //Suddividi in 12 il foglio.
@@ -73,68 +68,71 @@ background(255);
   //ellipse (width-delta_h, targetY+delta_h/2, delta_h, delta_h); 
 }
 
-void mousePressed() {
-  note.add(new Nota(frameRate*minDuration, delta_h, width, y));
+void noteOn(){
+  if(handOpen == true){
+    note.add(new Nota(width, y-(delta_h/2), frameRate*minDuration, delta_h));
+    timeOn = millis();
+  } 
+}
+void noteOff(){
+  if(handClosed == true){
+      note.get(note.size()-1).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag
+  }
+}
+/*void mousePressed() {
+  note.add(new Nota(width, y-(delta_h/2), frameRate*minDuration, delta_h));
   timeOn = millis();
 }
 
 void mouseReleased() {
   note.get(note.size()-1).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag1
-}
+}*/
 
 // Returns element closest to target in arr[]
-    float findClosest(float arr[], float target)
-    {
-        int n = arr.length;
- 
-        // Corner cases
-        if (target <= arr[0])
-            return arr[0];
-        if (target >= arr[n - 1])
-            return arr[n - 1];
- 
-        // Doing binary search
-        int i = 0, j = n, mid = 0;
-        while (i < j) {
-            mid = (i + j) / 2;
- 
-            if (arr[mid] == target)
-                return arr[mid];
- 
-            /* If target is less than array element,
-               then search in left */
-            if (target < arr[mid]) {
+float findClosest(float arr[], float target){
+  int n = arr.length;
+  // Corner cases
+  if (target <= arr[0])
+    return arr[0];
+  if (target >= arr[n - 1])
+    return arr[n - 1];
+  
+  // Doing binary search
+  int i = 0, j = n, mid = 0;
+  while (i < j) {
+    mid = (i + j) / 2;
+    if (arr[mid] == target)
+      return arr[mid];
+      
+    /* If target is less than array element, then search in left */
+    if (target < arr[mid]) {
+      // If target is greater than previous
+      // to mid, return closest of two
+      if (mid > 0 && target > arr[mid - 1])
+        return getClosest(arr[mid - 1], arr[mid], target);
         
-                // If target is greater than previous
-                // to mid, return closest of two
-                if (mid > 0 && target > arr[mid - 1])
-                    return getClosest(arr[mid - 1],
-                                  arr[mid], target);
-                 
-                /* Repeat for left half */
-                j = mid;             
-            }
+      /* Repeat for left half */
+      j = mid;
+     }
+     
+     // If target is greater than mid
+     else {
+       if (mid < n-1 && target < arr[mid + 1])
+         return getClosest(arr[mid], arr[mid + 1], target);
+       i = mid + 1; // update i
+     }
+   }
+   
+   // Only single element left after search
+   return arr[mid];
+ }
  
-            // If target is greater than mid
-            else {
-                if (mid < n-1 && target < arr[mid + 1])
-                    return getClosest(arr[mid],
-                          arr[mid + 1], target);               
-                i = mid + 1; // update i
-            }
-        }
- 
-        // Only single element left after search
-        return arr[mid];
-    }   
-    
-    float getClosest(float val1, float val2, float target)
-    {
-        if (target - val1 >= val2 - target)
-            return val2;       
-        else
-            return val1;       
-    }
+ float getClosest(float val1, float val2, float target){
+   if (target - val1 >= val2 - target)
+     return val2;       
+   else
+     return val1;
+   }
     
 /*
 incoming osc message are forwarded to the oscEvent method.
@@ -145,9 +143,18 @@ void oscEvent(OscMessage theOscMessage)
 {
   println("the Check");
    
- if(theOscMessage.checkAddrPattern("/stream1")==true)
+ if(theOscMessage.checkAddrPattern("on_off") == true)
  {
        inputOSC = theOscMessage.get(0).floatValue();
+       
+       if(inputOSC == 0){
+         handOpen = true;
+         handClosed = false;
+       }
+       else{
+         handClosed = true;
+         handOpen = false;
+       }
        /*
          there is only one UDP input, but with the prefixes, you can have multiple streams that are unpacked seperately
          the .get() method starts at 0, will return items in a list seperated by spaces

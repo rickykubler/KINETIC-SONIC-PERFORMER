@@ -5,22 +5,20 @@ class Nota
   float xpos; // rect xposition - scorre
   float h; // rect height - fissa
   float ypos ; // rect yposition - una volta nata non varia ed e' la stessa pos del cerchio
- 
-  Nota(float iw, int ih, float ixp, float iyp) {
+  
+  Nota(float ixp, float iyp, float iw, int ih) {
     w = iw;
     xpos = ixp;
     h = ih;
     ypos = iyp;
     modifica = true;
   }
- 
-  void move () {
-    xpos = xpos - 1;
-    //NECESSARIO DISTRUTTORE DA AUTO-CHIAMARE
+  void move(){
+    xpos -= 1;
   }
  
   void display() {
-    rectMode(CENTER);  // Set rectMode to CENTER
+    rectMode(CORNER);  // Set rectMode to CENTER
     fill  (32,178,170);
     rect(xpos, ypos, w, h);
     }
