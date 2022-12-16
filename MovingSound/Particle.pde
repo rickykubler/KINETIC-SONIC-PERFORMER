@@ -9,8 +9,7 @@ class Particle{
     this.acceleration = new PVector();
     this.radius_circle=radius_circle;
     this.lifespan=lifespan;
-    this.mass = 1;
-    
+    this.mass = 1;    
   }
   
   void update(){    

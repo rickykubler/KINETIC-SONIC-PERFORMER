@@ -4,6 +4,8 @@ import netP5.*;
 ParticleSystem ps;
 int Nparticles=100;
 
+float increment = 0.009;
+
 OscP5 oscP5;
 ArrayList<Nota> note = new ArrayList<Nota>();
 
@@ -25,6 +27,7 @@ float easing = 0.25;
 
 void setup() {
   size(500, 500);
+  smooth();
   //fullScreen();
   
   oscP5 = new OscP5(this, 7500);   //listening
@@ -44,8 +47,37 @@ void setup() {
 
 void draw() {
 background(255);
+  loadPixels();
+
+  float xoff = 0.0; // Start xoff at 0
+  
+  // For every x,y coordinate in a 2D space, calculate a noise value and produce a brightness value
+  for (int x = 0; x < width; x++) {
+    xoff += increment;   // Increment xoff 
+    float yoff = 0.0;   // For every xoff, start yoff at 0
+    
+    for (int y = 0; y < height; y++) {
+      yoff += increment; // Increment yoff
+      
+      // Calculate noise and scale by 255
+      float bright1 = noise(xoff,yoff)*random(0,255);
+      float bright2 = noise(xoff,yoff)*random(0,255);
+      float bright3 = noise(xoff,yoff)*random(0,255);
+
+      // Try using this line instead
+      //float bright1 = random(0,255);
+      //float bright2 = random(0,255);
+      //float bright3 = random(0,255);
+      
+      // Set each pixel onscreen to a grayscale value
+      pixels[x+y*width] = color(bright1, bright2, bright3);
+    }
+  }
+  
+  updatePixels();
     //Suddividi in 12 il foglio.
   for (float i : step){
+    stroke(255);
     line (0, i, width, i);
   }
 
@@ -83,7 +115,7 @@ background(255);
   my = constrain(my, 0+delta_h/2, height-delta_h/2);
 
   fill(153, 153, 255); 
-  ellipse(width-delta_h, my, delta_h, delta_h);
+  ellipse((width-delta_h), my, delta_h*0.8, delta_h*0.8);
   
   //PARTICLE SYSTEM
   //ps.origin=new PVector(width-delta_h, my);
