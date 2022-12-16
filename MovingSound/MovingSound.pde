@@ -23,7 +23,7 @@ void setup() {
   size(500, 500);
   //fullScreen();
   
-  oscP5 = new OscP5(this, 12000);   //listening
+  oscP5 = new OscP5(this, 7500);   //listening
   
   delta_h = height/numbers_of_note;
   y = delta_h; //
@@ -71,17 +71,6 @@ background(255);
   //ellipse (width-delta_h, targetY+delta_h/2, delta_h, delta_h); 
 }
 
-void noteOn(){
-  if(handOpen == true){
-    note.add(new Nota(width, y-(delta_h/2), frameRate*minDuration, delta_h));
-    timeOn = millis();
-  } 
-}
-void noteOff(){
-  if(handClosed == true){
-      note.get(note.size()-1).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag
-  }
-}
 //Forza il noteOn e il noteOff
 
 /*void mousePressed() {
@@ -146,7 +135,7 @@ it is input to this method as the "theOscMessage" argument
 */
 void oscEvent(OscMessage theOscMessage)
 {
-  println("the Check");
+  println(theOscMessage);
    
  if(theOscMessage.checkAddrPattern("on_off") == true)
  {
@@ -160,6 +149,16 @@ void oscEvent(OscMessage theOscMessage)
          handClosed = false;
          handOpen = true;
        }
+       
+      if(handOpen == true){
+      note.add(new Nota(width, y-(delta_h/2), frameRate*minDuration, delta_h));
+      timeOn = millis();
+  } 
+  
+      if(handClosed == true){
+      note.get(note.size()-1).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag
+  }
+  
        /*
          there is only one UDP input, but with the prefixes, you can have multiple streams that are unpacked seperately
          the .get() method starts at 0, will return items in a list seperated by spaces
@@ -174,15 +173,7 @@ void oscEvent(OscMessage theOscMessage)
  {
        freqOSC = theOscMessage.get(0).floatValue();
        handPosition = map(freqOSC, 0.0, 1.0, 0.0, height-1);
-       /*
-         there is only one UDP input, but with the prefixes, you can have multiple streams that are unpacked seperately
-         the .get() method starts at 0, will return items in a list seperated by spaces
-         there are also .floatValue() .stringValue and so on
-          
-         the oscP5 library has more methods for checking the format of your input stream, but you should know what
-         you are sending and be able to just use the right methods without checking first
-          
-       */
+
  }
     
 }
