@@ -1,6 +1,9 @@
 import oscP5.*; 
 import netP5.*;
 
+ParticleSystem ps;
+int Nparticles=100;
+
 OscP5 oscP5;
 ArrayList<Nota> note = new ArrayList<Nota>();
 
@@ -8,7 +11,7 @@ boolean handOpen, handClosed;
 float handPosition;
 float my;
 color col;
-int col_g, col_r;
+int col_r, col_g, col_b;
 
 float y=0, y_Old=0;
 int delta_h;
@@ -25,6 +28,10 @@ void setup() {
   //fullScreen();
   
   oscP5 = new OscP5(this, 7500);   //listening
+  ps=new ParticleSystem();
+  for(int p=0; p<Nparticles; p++){
+    ps.addParticle();
+  }
   
   delta_h = height/numbers_of_note;
   
@@ -37,17 +44,16 @@ void setup() {
 
 void draw() {
 background(255);
+    //Suddividi in 12 il foglio.
+  for (float i : step){
+    line (0, i, width, i);
+  }
 
   //float targetY = mouseY;
   
   float targetY = handPosition;
   y = findClosest(step_, targetY);
   
-    
-  //Suddividi in 12 il foglio.
-  for (float i : step){
-    line (0, i, width, i);
-  }
   
   //Disegna le note sotto forma di rettangoli
   for (Nota i : note) { 
@@ -76,10 +82,13 @@ background(255);
   //Ammorbidisci il movimento della sfera.
   my = constrain(my, 0+delta_h/2, height-delta_h/2);
 
-  fill(255);  
+  fill(153, 153, 255); 
   ellipse(width-delta_h, my, delta_h, delta_h);
-  fill(153, 153, 255);  
   
+  //PARTICLE SYSTEM
+  //ps.origin=new PVector(width-delta_h, my);
+  //ps.run();
+    
 }
 
 // Returns element closest to target in arr[]
@@ -180,15 +189,15 @@ void oscEvent(OscMessage theOscMessage)
   if(theOscMessage.checkAddrPattern("amp") == true)
  {
        float colOSC = theOscMessage.get(0).floatValue();
-       col_r = int(map(colOSC, 0.0, 1.0, 0, 255));
-       col = color(col_r, col_g, 0);
+       col_b = int(map(colOSC, 0.0, 1.0, 0, 255));
+       col = color(col_r, col_r, col_b);
  }
  
    if(theOscMessage.checkAddrPattern("fx") == true)
  {
        float colOSC = theOscMessage.get(0).floatValue();
        col_g = int(map(colOSC, 0.0, 1.0, 0, 255));
-       col = color(col_r, col_g, 0);
+       col = color(col_r, col_g, col_b);
  }
  
     
