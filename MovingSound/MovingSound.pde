@@ -4,8 +4,9 @@ import netP5.*;
 OscP5 oscP5;
 ArrayList<Nota> note = new ArrayList<Nota>();
 
-float inputOSC;
+float inputOSC, freqOSC;
 boolean handOpen, handClosed;
+float handPosition;
 float my;
 
 float y;
@@ -19,7 +20,7 @@ float minDuration = 0.2; //durata in secondi minima della nota
 float easing = 0.25;
 
 void setup() {
-  size(500,500);
+  size(500, 500);
   //fullScreen();
   
   oscP5 = new OscP5(this, 12000);   //listening
@@ -37,7 +38,10 @@ void setup() {
 void draw() {
 background(255);
 
-  float targetY = mouseY;
+  //float targetY = mouseY;
+  println(targetY);
+  
+  float targetY = handPosition;
   y = findClosest(step_, targetY);
   
     //Suddividi in 12 il foglio.
@@ -56,7 +60,7 @@ background(255);
    }
    
    if (abs(targetY - my) > 0.1) {
-    my = my + (mouseY- my) * easing;
+    my = my + (targetY- my) * easing;
   }
 
   my = constrain(my, 0+delta_h/2, height-delta_h/2);
@@ -79,6 +83,8 @@ void noteOff(){
       note.get(note.size()-1).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag
   }
 }
+//Forza il noteOn e il noteOff
+
 /*void mousePressed() {
   note.add(new Nota(width, y-(delta_h/2), frameRate*minDuration, delta_h));
   timeOn = millis();
@@ -148,13 +154,27 @@ void oscEvent(OscMessage theOscMessage)
        inputOSC = theOscMessage.get(0).floatValue();
        
        if(inputOSC == 0){
-         handOpen = true;
-         handClosed = false;
+         handOpen = false;
+         handClosed = true;
        }
        else{
-         handClosed = true;
-         handOpen = false;
+         handClosed = false;
+         handOpen = true;
        }
+       /*
+         there is only one UDP input, but with the prefixes, you can have multiple streams that are unpacked seperately
+         the .get() method starts at 0, will return items in a list seperated by spaces
+         there are also .floatValue() .stringValue and so on
+          
+         the oscP5 library has more methods for checking the format of your input stream, but you should know what
+         you are sending and be able to just use the right methods without checking first
+          
+       */
+ }
+ if(theOscMessage.checkAddrPattern("freq") == true)
+ {
+       freqOSC = theOscMessage.get(0).floatValue();
+       handPosition = map(freqOSC, 0.0, 1.0, 0.0, height-1);
        /*
          there is only one UDP input, but with the prefixes, you can have multiple streams that are unpacked seperately
          the .get() method starts at 0, will return items in a list seperated by spaces
