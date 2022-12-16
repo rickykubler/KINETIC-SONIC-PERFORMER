@@ -55,6 +55,7 @@ background(255);
     
     if(i.getFlag() == true){
       i.updateDuration(millis() - timeOn);
+      //i.updateDuration();
     }
     i.move();
     i.display();
@@ -74,7 +75,7 @@ background(255);
 }
 
 void mousePressed() {
-  note.add(new Nota(frameRate*minDuration, delta_h, width, y));
+  note.add(new Nota(width, y, frameRate*minDuration, delta_h));
   timeOn = millis();
 }
 

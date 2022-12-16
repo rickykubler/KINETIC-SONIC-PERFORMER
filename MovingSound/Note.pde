@@ -6,7 +6,7 @@ class Nota
   float h; // rect height - fissa
   float ypos ; // rect yposition - una volta nata non varia ed e' la stessa pos del cerchio
  
-  Nota(float iw, int ih, float ixp, float iyp) {
+  Nota(float ixp, float iyp, float iw, int ih) {
     w = iw;
     xpos = ixp;
     h = ih;
@@ -36,4 +36,7 @@ class Nota
   void updateDuration(float duration){
     w = frameRate*(duration/1000);
   }
+  /*void updateDuration(){
+    w += 1;
+  }*/
 }
