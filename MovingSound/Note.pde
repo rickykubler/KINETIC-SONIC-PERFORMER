@@ -5,7 +5,7 @@ class Nota
   float xpos; // rect xposition - scorre
   float h; // rect height - fissa
   float ypos ; // rect yposition - una volta nata non varia ed e' la stessa pos del cerchio
- 
+  
   Nota(float ixp, float iyp, float iw, int ih) {
     w = iw;
     xpos = ixp;
@@ -13,10 +13,8 @@ class Nota
     ypos = iyp;
     modifica = true;
   }
- 
-  void move () {
-    xpos = xpos - 1;
-    //NECESSARIO DISTRUTTORE DA AUTO-CHIAMARE
+  void move(){
+    xpos -= 1;
   }
  
   void display() {
@@ -36,7 +34,4 @@ class Nota
   void updateDuration(float duration){
     w = frameRate*(duration/1000);
   }
-  /*void updateDuration(){
-    w += 1;
-  }*/
 }
