@@ -75,7 +75,7 @@ background(255);
 }
 
 void mousePressed() {
-  note.add(new Nota(width, y, frameRate*minDuration, delta_h));
+  note.add(new Nota(width, y-(delta_h/2), frameRate*minDuration, delta_h));
   timeOn = millis();
 }
 
