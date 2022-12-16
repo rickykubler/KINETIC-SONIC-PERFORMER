@@ -9,7 +9,7 @@ boolean handOpen, handClosed;
 float handPosition;
 float my;
 
-float y;
+float y=0, y_Old=0;
 int delta_h;
 int numbers_of_note = 7;
 float[] step = new float [numbers_of_note];
@@ -26,7 +26,6 @@ void setup() {
   oscP5 = new OscP5(this, 7500);   //listening
   
   delta_h = height/numbers_of_note;
-  y = delta_h; //
   
   for (int i=0; i < numbers_of_note; i++) {         
   step[i] = i*delta_h;
@@ -43,7 +42,8 @@ background(255);
   float targetY = handPosition;
   y = findClosest(step_, targetY);
   
-    //Suddividi in 12 il foglio.
+    
+  //Suddividi in 12 il foglio.
   for (float i : step){
     line (0, i, width, i);
   }
@@ -61,26 +61,24 @@ background(255);
    if (abs(targetY - my) > 0.1) {
     my = my + (targetY- my) * easing;
   }
+  
+  //Cambia la frequenza delle note
+  if((y_Old != y) && handOpen == true && (note.size() > 0)){
+    note.get(note.size()-1).setFlag(); //rilascia la nota.
+    //crea una nuova nota su una frequenza diversa.
+    note.add(new Nota(width, y-(delta_h/2), frameRate*minDuration, delta_h));
+    timeOn = millis();
+  }
+  y_Old = y;
 
+  //Ammorbidisci il movimento della sfera.
   my = constrain(my, 0+delta_h/2, height-delta_h/2);
 
   fill(255);  
   ellipse(width-delta_h, my, delta_h, delta_h);
   fill(153, 153, 255);  
   
-  //ellipse (width-delta_h, targetY+delta_h/2, delta_h, delta_h); 
 }
-
-//Forza il noteOn e il noteOff
-
-/*void mousePressed() {
-  note.add(new Nota(width, y-(delta_h/2), frameRate*minDuration, delta_h));
-  timeOn = millis();
-}
-
-void mouseReleased() {
-  note.get(note.size()-1).setFlag(); // prendo l'ultimo elemento della lista e modifico il flag1
-}*/
 
 // Returns element closest to target in arr[]
 float findClosest(float arr[], float target){
