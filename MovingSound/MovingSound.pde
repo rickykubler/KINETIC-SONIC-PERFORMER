@@ -39,7 +39,6 @@ void draw() {
 background(255);
 
   //float targetY = mouseY;
-  println(targetY);
   
   float targetY = handPosition;
   y = findClosest(step_, targetY);
