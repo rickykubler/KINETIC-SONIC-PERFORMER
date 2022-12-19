@@ -10,7 +10,7 @@
 		}
 ,
 		"classnamespace" : "box",
-		"rect" : [ 200.0, 156.0, 792.0, 579.0 ],
+		"rect" : [ 58.0, 72.0, 647.0, 470.0 ],
 		"bglocked" : 0,
 		"openinpresentation" : 0,
 		"default_fontsize" : 12.0,
@@ -39,6 +39,75 @@
 		"subpatcher_template" : "",
 		"assistshowspatchername" : 0,
 		"boxes" : [ 			{
+				"box" : 				{
+					"hkeycolor" : [ 0.986246049404144, 0.007120788097382, 0.027434188872576, 1.0 ],
+					"id" : "obj-119",
+					"maxclass" : "kslider",
+					"numinlets" : 2,
+					"numoutlets" : 2,
+					"outlettype" : [ "int", "int" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 757.833327054977417, 642.666669845581055, 504.0, 76.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"fontface" : 0,
+					"fontname" : "Arial",
+					"fontsize" : 13.0,
+					"id" : "obj-116",
+					"items" : [ "major", "scale", ",", "natural", "minor", "scale" ],
+					"maxclass" : "umenu",
+					"numinlets" : 1,
+					"numoutlets" : 3,
+					"outlettype" : [ "int", "", "" ],
+					"parameter_enable" : 0,
+					"patching_rect" : [ 1161.833327054977417, 302.83334344625473, 100.0, 23.0 ]
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"autofit" : 1,
+					"forceaspect" : 1,
+					"id" : "obj-115",
+					"maxclass" : "fpic",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "jit_matrix" ],
+					"patching_rect" : [ 1010.833327054977417, 400.333339691162109, 174.258123993873596, 47.864892427501758 ],
+					"pic" : "/var/folders/4w/35nmcx750fl0p5v_tymchpx40000gp/T/TemporaryItems/NSIRD_screencaptureui_tfMkUn/Schermata 2022-12-16 alle 16.22.17.png"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"autofit" : 1,
+					"forceaspect" : 1,
+					"id" : "obj-114",
+					"maxclass" : "fpic",
+					"numinlets" : 1,
+					"numoutlets" : 1,
+					"outlettype" : [ "jit_matrix" ],
+					"patching_rect" : [ 1010.833327054977417, 490.57394152879715, 175.187963247299194, 55.395403398355477 ],
+					"pic" : "/var/folders/4w/35nmcx750fl0p5v_tymchpx40000gp/T/TemporaryItems/NSIRD_screencaptureui_XGypMf/Schermata 2022-12-16 alle 16.21.34.png"
+				}
+
+			}
+, 			{
+				"box" : 				{
+					"id" : "obj-113",
+					"maxclass" : "message",
+					"numinlets" : 2,
+					"numoutlets" : 1,
+					"outlettype" : [ "" ],
+					"patching_rect" : [ 1010.833327054977417, 464.333339691162109, 251.0, 22.0 ],
+					"text" : "0 0, 1 2, 2 3, 3 5, 4 7, 5 8, 6 10, 7 12"
+				}
+
+			}
+, 			{
 				"box" : 				{
 					"id" : "obj-109",
 					"maxclass" : "newobj",
@@ -83,7 +152,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 283.499984979629517, 854.666692137718201, 300.0, 100.0 ]
+					"patching_rect" : [ 752.499993562698364, 760.000022649765015, 478.0, 184.0 ]
 				}
 
 			}
@@ -93,7 +162,7 @@
 					"maxclass" : "scope~",
 					"numinlets" : 2,
 					"numoutlets" : 0,
-					"patching_rect" : [ 124.999984979629517, 858.500006914138794, 130.0, 130.0 ]
+					"patching_rect" : [ 425.333337783813477, 757.25001323223114, 295.333338260650635, 189.500018835067749 ]
 				}
 
 			}
@@ -106,8 +175,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 190.916668295860291, 563.666676819324493, 170.333316802978516, 96.0 ],
-					"presentation_linecount" : 3,
+					"patching_rect" : [ 192.333339214324951, 546.666669845581055, 170.333316802978516, 96.0 ],
 					"text" : "FX - tremolo"
 				}
 
@@ -147,8 +215,7 @@
 					"maxclass" : "comment",
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 925.833327054977417, 448.00000274181366, 179.666650414466858, 96.0 ],
-					"presentation_linecount" : 2,
+					"patching_rect" : [ 861.000001847743988, 533.333339691162109, 179.666650414466858, 96.0 ],
 					"text" : "MIDI manager"
 				}
 
@@ -163,7 +230,6 @@
 					"numinlets" : 1,
 					"numoutlets" : 0,
 					"patching_rect" : [ 641.500006914138794, 69.0, 179.666650414466858, 96.0 ],
-					"presentation_linecount" : 2,
 					"text" : "OSC receiver"
 				}
 
@@ -198,7 +264,7 @@
 					"numinlets" : 3,
 					"numoutlets" : 2,
 					"outlettype" : [ "", "bang" ],
-					"patching_rect" : [ 87.583334922790527, 622.666676819324493, 100.0, 22.0 ],
+					"patching_rect" : [ 89.000005841255188, 605.666669845581055, 100.0, 22.0 ],
 					"text" : "line"
 				}
 
@@ -210,7 +276,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 87.583334922790527, 593.666676819324493, 50.0, 22.0 ],
+					"patching_rect" : [ 89.000005841255188, 576.666669845581055, 50.0, 22.0 ],
 					"text" : "$1 100"
 				}
 
@@ -224,7 +290,7 @@
 					"numoutlets" : 2,
 					"outlettype" : [ "", "bang" ],
 					"parameter_enable" : 0,
-					"patching_rect" : [ 170.583337306976318, 699.666675627231598, 50.0, 22.0 ]
+					"patching_rect" : [ 172.000008225440979, 682.666668653488159, 50.0, 22.0 ]
 				}
 
 			}
@@ -235,7 +301,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 41.499984979629517, 828.333337903022766, 65.083349943161011, 22.0 ],
+					"patching_rect" : [ 42.916655898094177, 792.33333683013916, 65.083349943161011, 22.0 ],
 					"text" : "*~"
 				}
 
@@ -247,7 +313,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 87.583334922790527, 767.666676819324493, 100.0, 22.0 ],
+					"patching_rect" : [ 89.000005841255188, 750.666669845581055, 100.0, 22.0 ],
 					"text" : "+~ 0.5"
 				}
 
@@ -259,7 +325,7 @@
 					"numinlets" : 6,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 87.583334922790527, 667.166675627231598, 162.0, 22.0 ],
+					"patching_rect" : [ 89.000005841255188, 650.166668653488159, 162.0, 22.0 ],
 					"text" : "scale 1. 0. 0. 10."
 				}
 
@@ -271,7 +337,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 87.583334922790527, 736.166675627231598, 100.0, 22.0 ],
+					"patching_rect" : [ 89.000005841255188, 719.166668653488159, 100.0, 22.0 ],
 					"text" : "cycle~"
 				}
 
@@ -319,7 +385,7 @@
 					"numinlets" : 0,
 					"numoutlets" : 1,
 					"outlettype" : [ "" ],
-					"patching_rect" : [ 87.583334922790527, 563.666676819324493, 70.249997615814209, 22.0 ],
+					"patching_rect" : [ 89.000005841255188, 546.666669845581055, 70.249997615814209, 22.0 ],
 					"text" : "r fx"
 				}
 
@@ -1060,7 +1126,7 @@
 					"maxclass" : "ezdac~",
 					"numinlets" : 2,
 					"numoutlets" : 0,
-					"patching_rect" : [ 43.999984979629517, 1022.166675925254822, 45.0, 45.0 ]
+					"patching_rect" : [ 16.333337783813477, 852.333354592323303, 91.666668057441711, 91.666668057441711 ]
 				}
 
 			}
@@ -1098,7 +1164,7 @@
 					"numinlets" : 2,
 					"numoutlets" : 1,
 					"outlettype" : [ "signal" ],
-					"patching_rect" : [ 41.499984979629517, 508.666669487953186, 100.0, 22.0 ],
+					"patching_rect" : [ 41.499984979629517, 494.333339691162109, 100.0, 22.0 ],
 					"text" : "*~"
 				}
 
@@ -1165,7 +1231,7 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 78.249985098838806, 544.000002026557922, 283.0, 259.333337843418121 ],
+					"patching_rect" : [ 79.666656017303467, 526.999995052814484, 283.0, 259.333337843418121 ],
 					"proportion" : 0.5
 				}
 
@@ -1207,7 +1273,7 @@
 					"mode" : 0,
 					"numinlets" : 1,
 					"numoutlets" : 0,
-					"patching_rect" : [ 752.499993562698364, 296.500004887580872, 524.500011682510376, 345.333347737789154 ],
+					"patching_rect" : [ 752.499993562698364, 296.500004887580872, 515.833344340324402, 432.333338558673859 ],
 					"proportion" : 0.5
 				}
 
@@ -1296,6 +1362,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-76", 1 ],
+					"midpoints" : [ 163.749985098838806, 343.583335995674133, 131.999984979629517, 343.583335995674133 ],
 					"source" : [ "obj-11", 0 ]
 				}
 
@@ -1311,6 +1378,13 @@
 				"patchline" : 				{
 					"destination" : [ "obj-1", 0 ],
 					"source" : [ "obj-111", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
+					"destination" : [ "obj-30", 0 ],
+					"source" : [ "obj-113", 0 ]
 				}
 
 			}
@@ -1359,7 +1433,17 @@
 			}
 , 			{
 				"patchline" : 				{
+					"destination" : [ "obj-119", 0 ],
+					"midpoints" : [ 767.333327054977417, 489.0, 753.0, 489.0, 753.0, 633.0, 767.333327054977417, 633.0 ],
+					"order" : 0,
+					"source" : [ "obj-28", 0 ]
+				}
+
+			}
+, 			{
+				"patchline" : 				{
 					"destination" : [ "obj-24", 0 ],
+					"order" : 1,
 					"source" : [ "obj-28", 0 ]
 				}
 
@@ -1367,7 +1451,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-10", 1 ],
-					"midpoints" : [ 485.000006914138794, 739.333331108093262, 299.166662335395813, 739.333331108093262, 299.166662335395813, 493.666669368743896, 131.999984979629517, 493.666669368743896 ],
+					"midpoints" : [ 485.000006914138794, 743.333331227302551, 429.833332896232605, 743.333331227302551, 429.833332896232605, 489.666669249534607, 131.999984979629517, 489.666669249534607 ],
 					"source" : [ "obj-29", 0 ]
 				}
 
@@ -1461,6 +1545,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-105", 0 ],
+					"midpoints" : [ 52.416655898094177, 823.666665554046631, 411.0, 823.666665554046631, 411.0, 753.0, 434.833337783813477, 753.0 ],
 					"order" : 1,
 					"source" : [ "obj-48", 0 ]
 				}
@@ -1469,6 +1554,7 @@
 , 			{
 				"patchline" : 				{
 					"destination" : [ "obj-107", 0 ],
+					"midpoints" : [ 52.416655898094177, 823.666665554046631, 411.0, 823.666665554046631, 411.0, 744.0, 761.999993562698364, 744.0 ],
 					"order" : 0,
 					"source" : [ "obj-48", 0 ]
 				}
@@ -1744,8 +1830,26 @@
 			"inherited_shortname" : 1
 		}
 ,
-		"dependency_cache" : [  ],
-		"autosave" : 0
+		"dependency_cache" : [ 			{
+				"name" : "Schermata 2022-12-16 alle 16.21.34.png",
+				"bootpath" : "/private/var/folders/4w/35nmcx750fl0p5v_tymchpx40000gp/T/TemporaryItems/NSIRD_screencaptureui_XGypMf",
+				"patcherrelativepath" : "../../../../../../private/var/folders/4w/35nmcx750fl0p5v_tymchpx40000gp/T/TemporaryItems/NSIRD_screencaptureui_XGypMf",
+				"type" : "PNG",
+				"implicit" : 1
+			}
+, 			{
+				"name" : "Schermata 2022-12-16 alle 16.22.17.png",
+				"bootpath" : "/private/var/folders/4w/35nmcx750fl0p5v_tymchpx40000gp/T/TemporaryItems/NSIRD_screencaptureui_tfMkUn",
+				"patcherrelativepath" : "../../../../../../private/var/folders/4w/35nmcx750fl0p5v_tymchpx40000gp/T/TemporaryItems/NSIRD_screencaptureui_tfMkUn",
+				"type" : "PNG",
+				"implicit" : 1
+			}
+ ],
+		"autosave" : 0,
+		"boxgroups" : [ 			{
+				"boxes" : [ "obj-71", "obj-3", "obj-60", "obj-55", "obj-39", "obj-104", "obj-54", "obj-37", "obj-45" ]
+			}
+ ]
 	}
 
 }

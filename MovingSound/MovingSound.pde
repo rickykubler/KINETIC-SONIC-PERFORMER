@@ -4,7 +4,7 @@ import netP5.*;
 ParticleSystem ps;
 int Nparticles=100;
 
-float increment = 0.009;
+float increment = 0.1;
 
 OscP5 oscP5;
 ArrayList<Nota> note = new ArrayList<Nota>();
@@ -26,8 +26,8 @@ float minDuration = 0.2; //durata in secondi minima della nota
 float easing = 0.25;
 
 void setup() {
-  size(500, 500);
-  smooth();
+  size(700, 700);
+  //smooth();
   //fullScreen();
   
   oscP5 = new OscP5(this, 7500);   //listening

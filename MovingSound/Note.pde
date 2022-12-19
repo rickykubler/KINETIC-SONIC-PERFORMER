@@ -23,7 +23,7 @@ class Nota
   void display() {
     rectMode(CORNER);  // Set rectMode to CENTER
     fill  (c);
-    rect(xpos, ypos, w, h);
+    rect(xpos, ypos, w, h); 
     }
     
   boolean getFlag(){
