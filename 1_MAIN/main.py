@@ -133,8 +133,8 @@ def set_client():
     # argparse helps writing user-friendly commandline interfaces
     parser = argparse.ArgumentParser()
     # OSC server ip: '127.0.0.1'
-    parser.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
-    # OSC server port (check on SuperCollider) 57120
+    #parser.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
+    parser.add_argument("--ip", default='127.0.0.1', help="The ip of the OSC server") # if in the same machine
     parser.add_argument("--port", type=int, default=7500, help="The port the OSC server is listening on")
 
     # Parse the arguments
@@ -153,9 +153,9 @@ START_SOUND = True
 # argparse helps writing user-friendly commandline interfaces
 parser = argparse.ArgumentParser()
 # OSC server ip: '127.0.0.1'
-parser.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
-# OSC server port (check on SuperCollider) 57120
-parser.add_argument("--port", type=int, default=7500, help="The port the OSC server is listening on")
+#parser.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
+parser.add_argument("--ip", default='127.0.0.1') # if in the same machine
+parser.add_argument("--port", type=int, default=7400)
 
 # Parse the arguments
 args, unknown = parser.parse_known_args()
@@ -163,17 +163,18 @@ args, unknown = parser.parse_known_args()
 # Start the UDP Client
 client = udp_client.SimpleUDPClient(args.ip, args.port)
 
+
 parser_2 = argparse.ArgumentParser()
 # OSC server ip: '127.0.0.1'
-parser_2.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
-# OSC server port (check on SuperCollider) 57120
-parser_2.add_argument("--port", type=int, default=7400, help="The port the OSC server is listening on")
+#parser_2.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
+parser_2.add_argument("--ip", default='127.0.0.1') # if in the same machine
+parser_2.add_argument("--port", type=int, default=7500)
 
 # Parse the arguments
 args_2, unknown = parser_2.parse_known_args()
 
 # Start the UDP Client
-client_2 = udp_client.SimpleUDPClient(args_2.ip, args_2.port)
+client_2 = udp_client.SimpleUDPClient(args_2.ip, args_2.port) 
 
 OPEN_RIGHT = False
 OPEN_LEFT = False
@@ -251,4 +252,4 @@ cap.release()
 cv2.destroyAllWindows()
 
 client.send_message("on_off", 0)
-client_2.send_message("on_off", 0)
+#client_2.send_message("on_off", 0)
