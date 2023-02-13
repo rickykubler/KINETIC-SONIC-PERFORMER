@@ -178,9 +178,12 @@ client_2 = udp_client.SimpleUDPClient(args_2.ip, args_2.port)
 
 OPEN_RIGHT = False
 OPEN_LEFT = False
+prev_state = False
 center_x = []
 center_y = []
 left_hand_angle = 0
+center_palm_x_right = 0
+center_palm_y_right = 0
 while True:
     success, image = cap.read()
     image = cv2.flip(image, 1)
@@ -210,7 +213,7 @@ while True:
                 center_palm_y_right = sum(center_y)/(len(center_y)*h)
             int_palm_x = int(sum(center_x)/len(center_x))
             int_palm_y = int(sum(center_y)/len(center_y))
-            cv2.circle(image, (int_palm_x, int(int_palm_y)), 10, (0, 255 ,255), cv2.FILLED)
+            cv2.circle(image, (int_palm_x, int_palm_y), 10, (0, 255 ,255), cv2.FILLED)
 
             mpDraw.draw_landmarks(image, handLms, mpHands.HAND_CONNECTIONS)
             center_x = []
