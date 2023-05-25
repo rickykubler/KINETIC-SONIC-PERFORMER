@@ -1,4 +1,4 @@
-# TO ACTIVATE THE VIRTUAL ENVIROMENT ---> .\project-venv\Scripts\Activate.ps1
+# TO ACTIVATE THE VIRTUAL ENVIROMENT ---> .\project-venv\Scripts\Activate.ps1, .\magenta-env\Scripts\Activate.ps1 
 # TO CREATE THE ENV (windows) py -m venv project-venv; (mac) -m venv project-venv
 # TO UPGRADE PIP ---> python.exe -m pip install --upgrade pip
 # TO INSTALL THE PACKAGES ---> pip install -r .\requirements.txt
