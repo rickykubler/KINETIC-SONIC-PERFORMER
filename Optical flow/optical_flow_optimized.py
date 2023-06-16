@@ -68,6 +68,14 @@ while True:
     # Calculates dense optical flow by Farneback method
     # https://docs.opencv.org/3.4/dc/d6b/group__video__track.html#ga5d10ebbd59fe09c5f650289ec0ece5af 
     flow = cv2.calcOpticalFlowFarneback(prevgray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+    magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+    angle=angle * 180 / np.pi / 2
+    # avg_magnitude=np.mean(magnitude)
+    # avg_angle=np.mean(angle)
+    # print(avg_magnitude)
+    # print(avg_angle)
+    # print(np.average(angle,weights = magnitude))  #ANGLE WEIGHTED MEAN
+    print(np.average(magnitude,weights = angle))  #MAGNITUDE WEIGHTED MEAN
     
     # Updates previous frame
     prevgray = gray

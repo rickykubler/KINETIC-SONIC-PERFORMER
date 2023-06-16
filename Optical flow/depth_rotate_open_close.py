@@ -25,8 +25,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = holistic.process(image)
     
-    
-    # right hand (points 16,18,20)
+    # RIGHT HAND (points 16,18,20) HOLISTIC
     right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].x
     right_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].y
     right_pinky_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_PINKY].x
@@ -35,12 +34,36 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     right_index_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_INDEX].y
     
     center_right_hand_x= (right_wrist_x+right_pinky_x+right_index_x)/3
-    center_right_hand_y= (right_wrist_y+right_pinky_y+right_index_y)/3  ## calculate momentum (???) of this point
+    center_right_hand_y= (right_wrist_y+right_pinky_y+right_index_y)/3  
     # print (center_right_hand_x, center_right_hand_y)
     right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
     # print(right_wrist_x)
     
+    # LEFT HAND HOLISTIC
+    left_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].x
+    left_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].y
+    left_pinky_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_PINKY].x
+    left_pinky_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_PINKY].y
+    left_index_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_INDEX].x
+    left_index_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_INDEX].y
+    
+    center_left_hand_x= (left_wrist_x+left_pinky_x+left_index_x)/3
+    center_left_hand_y= (left_wrist_y+left_pinky_y+left_index_y)/3  ## calculate momentum (???) of this point
+    # print (center_right_hand_x, center_right_hand_y)
+    
+    # HANDS ANGULATION/HEIGHT
+    hands_mean_x= (center_right_hand_x+center_left_hand_x)/2
+    hands_mean_y= (center_right_hand_y+center_left_hand_y)/2
+    print(hands_mean_y)
+    
+    # HAND EXPANSION HOLISTIC
+    hand_expansion= ((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5
+    #print(hand_expansion)
   
+    
+    # DEPTH HOLISTIC
+    right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
+    # print(right_wrist_x)
     
     #Remove Nose
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].visibility = 0.0
@@ -68,7 +91,9 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].visibility = 0.0
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_THUMB].visibility = 0.0
     
-    #open/close
+    
+    #OPEN/CLOSE  rivedi qui  <---------
+    # RIGHT HAND MEDIAPIPE
     if results.right_hand_landmarks:
       thumb_x=results.right_hand_landmarks.landmark[4].x
       thumb_y=results.right_hand_landmarks.landmark[4].y
@@ -82,9 +107,10 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       pinky_y=results.right_hand_landmarks.landmark[20].y
       wrist_x=results.right_hand_landmarks.landmark[0].x
       wrist_y=results.right_hand_landmarks.landmark[0].y
-    
+      
     center_x=(thumb_x+index_x+middle_x+ring_x+pinky_x)/5
-    center_y=(thumb_y+index_y+middle_y+ring_y+pinky_y)/5
+    center_y=(thumb_x+index_y+middle_y+ring_y+pinky_y)/5
+    
     
     distance_thumb=((center_x - thumb_x)**2 + (center_y - thumb_y)**2)**0.5
     distance_index=((center_x - index_x)**2 + (center_y - index_y)**2)**0.5
@@ -102,13 +128,13 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     else:
       print("OPEN")
     """
-    #rotation
+    
+    # ROTATION
     coord_x_right = middle_x - wrist_x
     coord_y_right = middle_y - wrist_y
-
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
-    print(right_hand_angle)
-
+    # print(right_hand_angle)
+    
     # Draw landmark annotation on the image.
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
