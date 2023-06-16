@@ -25,7 +25,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = holistic.process(image)
     
-    # RIGHT HAND (points 16,18,20) HOLISTIC
+    # RIGHT HAND (points 16,18,20) 
     right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].x
     right_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].y
     right_pinky_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_PINKY].x
@@ -39,7 +39,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
     # print(right_wrist_x)
     
-    # LEFT HAND HOLISTIC
+    # LEFT HAND
     left_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].x
     left_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].y
     left_pinky_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_PINKY].x
@@ -51,19 +51,22 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     center_left_hand_y= (left_wrist_y+left_pinky_y+left_index_y)/3  ## calculate momentum (???) of this point
     # print (center_right_hand_x, center_right_hand_y)
     
-    # HANDS ANGULATION/HEIGHT
+    # DEPTH 
+    right_wrist_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
+    center_head= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
+    # print(abs(right_wrist_depth))
+    # print(abs(center_head))
+    
+    # HANDS ANGULATION/HEIGHT (vd cosa mandare quando non vede le mani)
     hands_mean_x= (center_right_hand_x+center_left_hand_x)/2
     hands_mean_y= (center_right_hand_y+center_left_hand_y)/2
     print(hands_mean_y)
+    # print(hands_mean_y)
     
-    # HAND EXPANSION HOLISTIC
-    hand_expansion= ((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5
-    #print(hand_expansion)
-  
+    # HANDS EXPANSION  (vd cosa mandare quando non vede le mani)
+    hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
+    # print(hand_expansion)
     
-    # DEPTH HOLISTIC
-    right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
-    # print(right_wrist_x)
     
     #Remove Nose
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].visibility = 0.0
@@ -92,22 +95,47 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_THUMB].visibility = 0.0
     
     
-    #OPEN/CLOSE  rivedi qui  <---------
-    # RIGHT HAND MEDIAPIPE
+    #OPEN/CLOSE  
+    # RIGHT HAND 
+    if not results.right_hand_landmarks:
+      thumb_x=0
+      thumb_y=0
+   
+      index_x=0
+      index_y=0
+    
+      middle_x=0
+      middle_y=0
+    
+      ring_x=0
+      ring_y=0
+  
+      pinky_x=0
+      pinky_y=0
+    
+      wrist_x=0
+      wrist_y=0
+    
     if results.right_hand_landmarks:
       thumb_x=results.right_hand_landmarks.landmark[4].x
       thumb_y=results.right_hand_landmarks.landmark[4].y
+   
       index_x=results.right_hand_landmarks.landmark[8].x
       index_y=results.right_hand_landmarks.landmark[8].y
+    
       middle_x=results.right_hand_landmarks.landmark[12].x
       middle_y=results.right_hand_landmarks.landmark[12].y
+    
       ring_x=results.right_hand_landmarks.landmark[16].x
-      ring_y= results.right_hand_landmarks.landmark[16].y
+      ring_y=results.right_hand_landmarks.landmark[16].y
+  
       pinky_x=results.right_hand_landmarks.landmark[20].x
       pinky_y=results.right_hand_landmarks.landmark[20].y
+    
       wrist_x=results.right_hand_landmarks.landmark[0].x
       wrist_y=results.right_hand_landmarks.landmark[0].y
-      
+    
+    
     center_x=(thumb_x+index_x+middle_x+ring_x+pinky_x)/5
     center_y=(thumb_x+index_y+middle_y+ring_y+pinky_y)/5
     
@@ -118,11 +146,11 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     distance_ring=((center_x - ring_x)**2 + (center_y - ring_y)**2)**0.5
     distance_pinky=((center_x - pinky_x)**2 + (center_y - pinky_y)**2)**0.5
     
-    distance_tot= distance_thumb + distance_index + distance_middle + distance_ring +  distance_pinky
-    
-    treshold=0.4
-    
     """
+    distance_tot= (distance_thumb + distance_index + distance_middle + distance_ring +  distance_pinky)/abs(right_wrist_depth)
+    
+    treshold=0.3
+    
     if distance_tot<treshold:
       print("CLOSED")
     else:
@@ -133,7 +161,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     coord_x_right = middle_x - wrist_x
     coord_y_right = middle_y - wrist_y
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
-    # print(right_hand_angle)
+    #print(right_hand_angle)
     
     # Draw landmark annotation on the image.
     image.flags.writeable = True
