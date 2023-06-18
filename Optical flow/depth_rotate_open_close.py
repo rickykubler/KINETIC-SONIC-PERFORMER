@@ -25,7 +25,8 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = holistic.process(image)
     
-    # RIGHT HAND (points 16,18,20) 
+    
+    # RIGHT HAND (points 16,18,20) WITH MP POSE
     right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].x
     right_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].y
     right_pinky_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_PINKY].x
@@ -33,13 +34,16 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     right_index_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_INDEX].x
     right_index_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_INDEX].y
     
+    # RIGHT PALM CENTER
     center_right_hand_x= (right_wrist_x+right_pinky_x+right_index_x)/3
     center_right_hand_y= (right_wrist_y+right_pinky_y+right_index_y)/3  
     # print (center_right_hand_x, center_right_hand_y)
+    
+    # RIGHT WRIST
     right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
     # print(right_wrist_x)
     
-    # LEFT HAND
+    # LEFT HAND WITH MP POSE
     left_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].x
     left_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].y
     left_pinky_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_PINKY].x
@@ -47,26 +51,46 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     left_index_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_INDEX].x
     left_index_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_INDEX].y
     
+    # LEFT PALM CENTER
     center_left_hand_x= (left_wrist_x+left_pinky_x+left_index_x)/3
     center_left_hand_y= (left_wrist_y+left_pinky_y+left_index_y)/3  ## calculate momentum (???) of this point
     # print (center_right_hand_x, center_right_hand_y)
     
-    # DEPTH 
+    
+    # DEPTH OF THE RIGHT HAND AND OF THE HEAD (used also to adapt parameters wrt the distance from camera)
     right_wrist_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
     center_head= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
-    # print(abs(right_wrist_depth))
-    # print(abs(center_head))
     
-    # HANDS ANGULATION/HEIGHT (vd cosa mandare quando non vede le mani)
-    hands_mean_x= (center_right_hand_x+center_left_hand_x)/2
+    # IMPORTANT: RESIZE PARAMETER WRT DISTANCE -->TO IMPROVE
+    # "right_wrist_depth" is pretty linear --> variation of 2 means variation of 1,20 meters in depth
+    #  0.6 converts the number in meters, do not touch
+    # /2 gives a % of resize wrt distance
+    resize=((3-abs(right_wrist_depth))*(0.6))/2    
+    
+    """
+    # HANDS ANGULATION/HEIGHT --> MIDDLE POINT BETWEEN HANDS, FOR NOW DOES NOT DEPEND ON DISTANCE 
+    # hands_mean_x= (center_right_hand_x+center_left_hand_x)/2  FOR NOW ONLY Y COORDINATE
     hands_mean_y= (center_right_hand_y+center_left_hand_y)/2
-    print(hands_mean_y)
-    # print(hands_mean_y)
+    if hands_mean_y<1:
+        print(hands_mean_y)  
+    else:
+        hands_mean_y=0.5
+        print(hands_mean_y)
+    """
     
-    # HANDS EXPANSION  (vd cosa mandare quando non vede le mani)
-    hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
+    
+    # HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS 
+    # *resize TO ADAPT THE PARAMETER WRT DISTANCE
+    hand_expansion= ((((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5))*resize
     # print(hand_expansion)
-    
+    """
+    hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
+    if hand_expansion<1:
+        print(hand_expansion)  
+    else:
+        hand_expansion=0.5
+        print(hand_expansion)
+    """
     
     #Remove Nose
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].visibility = 0.0
@@ -95,8 +119,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_THUMB].visibility = 0.0
     
     
-    #OPEN/CLOSE  
-    # RIGHT HAND 
+    #OPEN/CLOSE RIGHT HAND WITH DISTANCE OF FINGERS'TIPS FROM PALM CENTER
     if not results.right_hand_landmarks:
       thumb_x=0
       thumb_y=0
@@ -135,33 +158,47 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       wrist_x=results.right_hand_landmarks.landmark[0].x
       wrist_y=results.right_hand_landmarks.landmark[0].y
     
-    
+    # CENTER RIGHT HAND WITH MEDIAPIPE (BECAUSE WE NEED LANDMARKS OF FINGERS TIPS)
     center_x=(thumb_x+index_x+middle_x+ring_x+pinky_x)/5
     center_y=(thumb_x+index_y+middle_y+ring_y+pinky_y)/5
     
-    
+    # DISTANCE BETWEEN EVERY FINGER AND CENTER OF THE RIGHT PALM
     distance_thumb=((center_x - thumb_x)**2 + (center_y - thumb_y)**2)**0.5
     distance_index=((center_x - index_x)**2 + (center_y - index_y)**2)**0.5
     distance_middle=((center_x - middle_x)**2 + (center_y - middle_y)**2)**0.5
     distance_ring=((center_x - ring_x)**2 + (center_y - ring_y)**2)**0.5
     distance_pinky=((center_x - pinky_x)**2 + (center_y - pinky_y)**2)**0.5
     
+    # TOTAL DISTANCE OF FINGER TIPS FROM PALM CENTER
+    # *resize TO ADAPT THE PARAMETER WRT DISTANCE --> SEEMS TO WORK PRETTY WELL FOR OPEN/CLOSE
+    distance_tot= (distance_thumb + distance_index + distance_middle + distance_ring +  distance_pinky)*resize
+    
+    # THRESHOLD FOR OPEN/CLOSE RESIZED
+    treshold=0.3*resize
+    
     """
-    distance_tot= (distance_thumb + distance_index + distance_middle + distance_ring +  distance_pinky)/abs(right_wrist_depth)
-    
-    treshold=0.3
-    
     if distance_tot<treshold:
       print("CLOSED")
     else:
       print("OPEN")
-    """
     
-    # ROTATION
+    """
+    # GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot)
+    #  O.20 IS THE NORMALIZATION --> TO IMPROVE
+    distance_tot_norm= ((distance_tot)/(0.20))
+    if distance_tot_norm<1:
+        print(distance_tot_norm)  
+    else:
+        distance_tot_norm=1
+        print(distance_tot_norm)
+    
+    """
+    # ROTATION OF THE RIGHT HAND
     coord_x_right = middle_x - wrist_x
     coord_y_right = middle_y - wrist_y
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
     #print(right_hand_angle)
+    """
     
     # Draw landmark annotation on the image.
     image.flags.writeable = True

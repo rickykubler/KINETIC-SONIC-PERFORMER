@@ -70,7 +70,7 @@ while True:
     flow = cv2.calcOpticalFlowFarneback(prevgray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
     magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
     angle=angle * 180 / np.pi / 2   #vedi se normalizzazione corretta
-
+    """
     #MEAN NORMALIZED ANGLE, WEIGHTED WITH MAGNITUDE  (RIVEDI CONCETTO)
     norm_ang=(np.average(angle,weights = magnitude))/180 
     if norm_ang<1:
@@ -78,8 +78,8 @@ while True:
     else:
         norm_ang=1
         print(norm_ang)
-    
     """
+    
     #MEAN NORMALIZED MAGNITUDE, WEIGHTED WITH ANGLE
     norm_mag=np.average(magnitude,weights = angle)/10
     if norm_mag<1:
@@ -87,7 +87,7 @@ while True:
     else:
         norm_mag=1
         print(norm_mag)
-    """
+    
     
     # Updates previous frame
     prevgray = gray
