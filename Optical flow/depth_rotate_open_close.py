@@ -40,7 +40,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # print (center_right_hand_x, center_right_hand_y)
     
     # RIGHT WRIST
-    right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
+    # right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
     # print(right_wrist_x)
     
     # LEFT HAND WITH MP POSE
@@ -59,7 +59,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     # DEPTH OF THE RIGHT HAND AND OF THE HEAD (used also to adapt parameters wrt the distance from camera)
     right_wrist_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
-    center_head= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
+    # center_head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
     
     # IMPORTANT: RESIZE PARAMETER WRT DISTANCE -->TO IMPROVE
     # "right_wrist_depth" is pretty linear --> variation of 2 means variation of 1,20 meters in depth
@@ -183,6 +183,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       print("OPEN")
     
     """
+    
     # GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot)
     #  O.20 IS THE NORMALIZATION --> TO IMPROVE
     distance_tot_norm= ((distance_tot)/(0.20))
