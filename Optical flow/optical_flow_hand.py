@@ -69,14 +69,20 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       # If loading a video, use 'break' instead of 'continue'.
       continue
   
-    h, w = image.shape[:2]
-    y, x = np.mgrid[step/2:h:step, step/2:w:step].reshape(2,-1).astype(int)   #unità di misura/scala
+    h, w = image.shape[:2]  ## 480,640
+    y, x = (np.mgrid[step/2:h:step, step/2:w:step].reshape(2,-1).astype(int))   #unità di misura/scala
+    y_norm=y/480
+    x_norm=x/640
     
+            
+    # distanza tra punto e punti
+    # media pesata in base a distanza
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     flow = cv2.calcOpticalFlowFarneback(prevgray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
     
     magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
+    
     
     # To improve performance, optionally mark the image as not writeable to pass by reference.
     image.flags.writeable = False
@@ -86,7 +92,14 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # RIGHT WRIST
     right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].x
     right_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].y
-    # print(right_wrist_x)
+    # print(right_wrist_x)   RANGE 0.0350
+    
+    min_distance_squared=min(np.square(np.subtract(x_norm,right_wrist_x*np.ones_like(x_norm)))+np.square(np.subtract(y_norm,right_wrist_y*np.ones_like(y_norm))))
+    index_min=np.argmin(min_distance_squared)
+    print(magnitude[index_min,0]/0.06)
+    
+    #weighted_mag_hand=np.average(magnitude,weights = distances)
+    #print(weighted_mag_hand)
     
     #Remove Nose
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].visibility = 0.0
