@@ -133,7 +133,7 @@ def set_client():
     # argparse helps writing user-friendly commandline interfaces
     parser = argparse.ArgumentParser()
     # OSC server ip: '127.0.0.1'
-    #parser.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
+    # parser.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
     parser.add_argument("--ip", default='127.0.0.1', help="The ip of the OSC server") # if in the same machine
     parser.add_argument("--port", type=int, default=7500, help="The port the OSC server is listening on")
 
