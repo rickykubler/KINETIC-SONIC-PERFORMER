@@ -9,11 +9,6 @@ import time
 # PRESS q TO END THE SCRIPT
 
 # OPTICAL FLOW TO CALCULATE HOW MUCH MOTION THERE IS IN THE FRAME
-
-# NB: OPTICAL FLOW + VELOCITY OF POINTS SLOW DOWN THE PROCESS
-# NB: SI PUO' DECIDERE SE PRINTARE O NO L'OPTICAL FLOW
-
-# optical flow grid/field
 def draw_flow(img, flow, step=16):
 
     h, w = img.shape[:2]
@@ -48,20 +43,18 @@ def draw_hsv(flow):
 
     return bgr
 
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
+#mp_drawing = mp.solutions.drawing_utils
+#mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
 mp_pose = mp.solutions.pose
 
 # For webcam input:
 cap = cv2.VideoCapture(0)
 
-# success = a boolean return value from getting the frame
-# prev = the first frame in the entire video sequence
+# success = a boolean return value from getting the frame, prev = the first frame in the entire video sequence
 success, prev = cap.read()
 
-# Converts frame to grayscale because we only need the luminance channel for
-# detecting edges - less computationally expensive
+# Converts frame to grayscale because we only need the luminance channel for detecting edges - less computationally expensive
 prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
 
 # Setting default values for right hand and head
@@ -73,8 +66,7 @@ previous_head_y=0.5
 # for every frame
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
   while cap.isOpened():
-    # success = a boolean return value from gettingthe frame 
-    # image = the current frame being projected in the video
+    # success = a boolean return value from gettingthe frame , image = the current frame being projected in the video
     success, image = cap.read()
     if not success:
       print("Ignoring empty camera frame.")
@@ -93,14 +85,16 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     
     # Calculates dense optical flow by Farneback method
-    # https://docs.opencv.org/3.4/dc/d6b/group__video__track.html#ga5d10ebbd59fe09c5f650289ec0ece5af 
     flow = cv2.calcOpticalFlowFarneback(prevgray, gray, None, 0.5, 3, 15, 3, 5, 1.2, 0)
     magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
     angle=angle * 180 / np.pi / 2
     
     # 1) MEAN NORMALIZED ANGLE, WEIGHTED WITH MAGNITUDE  --> MEAN DIRECTION OF THE WHOLE MOVEMENT IN THE SCREEN
+    # tende a 1 verso l'alto, a 0 verso il basso, 0,5 a dx e sx, la distanza influisce perchè più sei vicino più punti sullo schermo sono presi
+    # se fermo o fuori dallo schermo il valore è 0
     norm_ang=(np.average(angle,weights = magnitude))/180 
     # 2) MEAN NORMALIZED MAGNITUDE, WEIGHTED WITH ANGLE  --> MEAN VELOCITY OF THE WHOLE MOVEMENT IN THE SCREEN
+    # se fermo o fuori dallo schermo il valore è 0
     norm_mag=np.average(magnitude,weights = angle)/10
     
     # CLIPPING ANGLE AND VELOCITY
@@ -108,8 +102,20 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       norm_ang=1 
     if norm_mag>1:
       norm_mag=1
+
+    # 3) DEPTH THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
+    head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
+    right_wrist_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
     
-    # 3) OPEN/CLOSE RIGHT HAND WITH DISTANCE OF FINGERS'TIPS FROM PALM CENTER
+    # IMPORTANT: RESIZE PARAMETER WRT DISTANCE (DEPTH NORMALIZATION)
+    # "head_depth" is pretty linear --> variation of 1 means variation of 0,6 meters in depth, variation of 2 means variation of 1,20 meters
+    #  in this way *0.6 converts the number in meters, do not touch
+    # /2 (2 maximum distance perceived) gives a normalization of distance, a percentage of how much you are distant
+    resize=((3-abs(head_depth))*(0.6))/2
+    # /1.7 (1.7 maximum distance perceived) gives a normalization of distance, a percentage of how much you are distant
+    resize_hand=((3-abs(right_wrist_depth))*(0.6))/(1.7)
+    
+    # 4) OPEN/CLOSE RIGHT HAND WITH DISTANCE OF FINGERS'TIPS FROM PALM CENTER
     if not results.right_hand_landmarks:
       thumb_x=0
       thumb_y=0
@@ -148,39 +154,31 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       wrist_x=results.right_hand_landmarks.landmark[0].x
       wrist_y=results.right_hand_landmarks.landmark[0].y
       
-    # CENTER RIGHT HAND WITH MEDIAPIPE (BECAUSE WE NEED LANDMARKS OF FINGERS TIPS)
+    # CENTER RIGHT HAND 
     center_x=(thumb_x+index_x+middle_x+ring_x+pinky_x)/5
     center_y=(thumb_x+index_y+middle_y+ring_y+pinky_y)/5
     
     # DISTANCE BETWEEN EVERY FINGER AND CENTER OF THE RIGHT PALM
     distance_thumb=((center_x - thumb_x)**2 + (center_y - thumb_y)**2)**0.5
-    distance_index=((center_x - index_x)**2 + (center_y - index_y)**2)**0.5
+    # distance_index=((center_x - index_x)**2 + (center_y - index_y)**2)**0.5  SE TI ALLONTANI MEDIAPIPE DA' PROBLEMI SOPRATTUTTO CON INDICE
     distance_middle=((center_x - middle_x)**2 + (center_y - middle_y)**2)**0.5
     distance_ring=((center_x - ring_x)**2 + (center_y - ring_y)**2)**0.5
     distance_pinky=((center_x - pinky_x)**2 + (center_y - pinky_y)**2)**0.5
     
-    # 4) DEPTH THE HEAD (used also to adapt parameters wrt the distance from camera)
-    head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
-    
-    # IMPORTANT: RESIZE PARAMETER WRT DISTANCE -->TO IMPROVE
-    # "right_wrist_depth" is pretty linear --> variation of 2 means variation of 1,20 meters in depth
-    #  0.6 converts the number in meters, do not touch
-    # /2 gives a % of resize wrt distance
-    resize=((3-abs(head_depth))*(0.6))/2 
-    
-    # TOTAL DISTANCE OF FINGER TIPS FROM PALM CENTER (*resize TO ADAPT THE PARAMETER WRT DISTANCE --> SEEMS TO WORK PRETTY WELL FOR OPEN/CLOSE)
-    distance_tot= (distance_thumb + distance_index + distance_middle + distance_ring +  distance_pinky)*resize
+    # TOTAL DISTANCE OF FINGER TIPS FROM PALM CENTER (*resize TO ADAPT THE PARAMETER WRT DISTANCE)
+    # se lontana il resize influisce poco, se vicina il resize influisce di più
+    distance_tot= (distance_thumb + distance_middle + distance_ring +  distance_pinky)*resize_hand
     
     # THRESHOLD FOR OPEN/CLOSE RESIZED
-    treshold=0.3*resize
+    treshold=0.2*resize_hand   # si può modificare 0.2 o al massimo aggiungere indice, con 0.2 e senza indice a me dà i risultati migliori
     
     if distance_tot<treshold:
       open_close="CLOSED"
     else:
       open_close="OPEN"
       
-    # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot) (O.20 IS THE NORMALIZATION --> TO IMPROVE)
-    distance_tot_norm= ((distance_tot)/(0.20))
+    # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
+    distance_tot_norm= (distance_tot)/0.25
     if distance_tot_norm>1:
         distance_tot_norm=1
 
@@ -203,7 +201,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     # HANDS ANGULATION: HANDS HEIGHT + HANDS EXPANSION
     # 7) HANDS HEIGHT --> MIDDLE POINT BETWEEN WRISTS, FOR NOW DOES NOT DEPEND ON DISTANCE 
-    hands_mean_y= (left_wrist_y+right_wrist_x)/2
+    hands_mean_y= (1-((left_wrist_y+right_wrist_y)/2)*resize)
     if hands_mean_y>1:
         hands_mean_y=1  
     
@@ -230,36 +228,33 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     frame_time=end-start
     
     # 9) CLIPPING HAND SPEED
-    velocity_norm_hand=(frame_distance_hand/frame_time)/2
+    velocity_norm_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
     if velocity_norm_hand>1:
         velocity_norm_hand=1
     
     # 10) CLIPPING HEAD SPEED   
-    velocity_norm_head=(frame_distance_head/frame_time)/2
+    velocity_norm_head=((frame_distance_head/frame_time)/2)    #*resize???
     if velocity_norm_head>1:
         velocity_norm_head=1
         
     # VARIOUS PRINTS 
-    print(f"\rRight hand's speed: {velocity_norm_hand} ", end='', flush=True)
+    print(f"\rRight hand's speed: {velocity_norm_hand} ")
     #print(f"\rRight head's speed: {velocity_norm_head} ", end='', flush=True)
     #print(f"\rRight hand is open/close: {open_close} ", end='', flush=True)
-    #print(f"\rHands' expansion: {hand_expansion} ", end='', flush=True)
-    #print(f"\rAverage hands' height: {hands_mean_y} ", end='', flush=True)
+    #print(f"\rHands' expansion: {hand_expansion} ")
+    #print(f"\rAverage hands' height: {hands_mean_y} ")
     #print(f"\rRight hand's rotation: {right_hand_angle} ", end='', flush=True)
-    #print(f"\rRight hand's gradual opening: {distance_tot_norm} ", end='', flush=True)
-    #print(f"\rDistance from camera: {head_depth} ", end='', flush=True)
+    # print(f"\rRight hand's gradual opening: {distance_tot_norm}")
+    #print(f"\rDistance from camera: {resize} ")
+    #print(f"\rDistance of right hand from camera: {resize_hand} ")
     #print(f"\rMean direction of body's movement: {norm_ang} ", end='', flush=True)
-    #print(f"\rMean magnitude of body's movement:: { norm_mag} ", end='', flush=True)
-    
-    
-    # calculate the FPS for current frame detection
-    # fps = 1 / (end-start)
-    # print(f"{fps:.2f} FPS")
+    # print(f"\rMean magnitude of body's movement:: { norm_mag} ", end='', flush=True)
     
     # Flip the image horizontally for a selfie-view display.
     # cv2.imshow('MediaPipe Holistic', cv2.flip(image, 1))
     # cv2.imshow('flow', draw_flow(gray, flow))
-    cv2.imshow('flow HSV', draw_hsv(flow))
+    # cv2.imshow('flow HSV', draw_hsv(flow))
+    cv2.imshow('Clean image', cv2.flip(image, 1))
     key = cv2.waitKey(5)
     if key == ord('q'):
         break
