@@ -289,6 +289,31 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # cv2.imshow('MediaPipe Holistic', cv2.flip(image, 1))
     # cv2.imshow('flow', draw_flow(gray, flow))
     # cv2.imshow('flow HSV', draw_hsv(flow))
+    '''
+    if START_SOUND:
+            #print(center_palm_y)
+            client.send_message("freq", center_palm_y_right)
+            client_2.send_message("freq", center_palm_y_right)
+
+            client.send_message("amp", center_palm_x_right)
+            client_2.send_message("amp", center_palm_x_right)
+            
+
+            client.send_message("fx", left_hand_angle)
+            client_2.send_message("fx", left_hand_angle)
+            #print(left_hand_angle)
+
+            if OPEN_RIGHT and not prev_state:
+                client.send_message("on_off", 1)
+                client_2.send_message("on_off", 1)
+                print('on')
+            elif not OPEN_RIGHT and prev_state:
+                client.send_message("on_off", 0)
+                client_2.send_message("on_off", 0)
+                print('off')
+
+    prev_state = OPEN_RIGHT
+    '''
     cv2.imshow('Clean image', cv2.flip(image, 1))
     key = cv2.waitKey(5)
     if key == ord('q'):
@@ -298,6 +323,6 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
 cap.release()
 cv2.destroyAllWindows()
 
-#client.send_message("on_off", 0)
-#client_2.send_message("on_off", 0)
-#client_3.send_message("on_off", 0)
+client.send_message("on_off", 0)
+client_2.send_message("on_off", 0)
+client_3.send_message("on_off", 0)
