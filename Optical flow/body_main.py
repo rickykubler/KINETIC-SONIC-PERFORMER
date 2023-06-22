@@ -98,6 +98,11 @@ previous_hand_y=0.5
 previous_head_x=0.5
 previous_head_y=0.5
 
+
+OPEN_RIGHT = False
+OPEN_LEFT = False
+prev_state = False
+
 # for every frame
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
   while cap.isOpened():
@@ -294,22 +299,27 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #print(center_palm_y)
             client.send_message("freq", center_palm_y_right)
             client_2.send_message("freq", center_palm_y_right)
+            client_3.send_message("freq", center_palm_y_right)
 
             client.send_message("amp", center_palm_x_right)
             client_2.send_message("amp", center_palm_x_right)
+            client_3.send_message("amp", center_palm_x_right)
             
 
             client.send_message("fx", left_hand_angle)
             client_2.send_message("fx", left_hand_angle)
+            client_3.send_message("fx", left_hand_angle)
             #print(left_hand_angle)
 
             if OPEN_RIGHT and not prev_state:
                 client.send_message("on_off", 1)
                 client_2.send_message("on_off", 1)
+                client_3.send_message("on_off", 1)
                 print('on')
             elif not OPEN_RIGHT and prev_state:
                 client.send_message("on_off", 0)
                 client_2.send_message("on_off", 0)
+                client_3.send_message("on_off", 0)
                 print('off')
 
     prev_state = OPEN_RIGHT
