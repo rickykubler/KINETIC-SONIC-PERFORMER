@@ -51,6 +51,41 @@ mp_pose = mp.solutions.pose
 # For webcam input:
 cap = cv2.VideoCapture(0)
 
+START_SOUND = True
+# start the osc
+# argparse helps writing user-friendly commandline interfaces
+defaultIP='127.0.0.1'
+
+parser = argparse.ArgumentParser()
+# OSC server ip: '127.0.0.1'
+#parser.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
+parser.add_argument("--ip", defaultIP) # if in the same machine
+parser.add_argument("--port", type=int, default=7400)
+# Parse the arguments
+args, unknown = parser.parse_known_args()
+# Start the UDP Client
+client = udp_client.SimpleUDPClient(args.ip, args.port)
+
+parser_2 = argparse.ArgumentParser()
+# OSC server ip: '127.0.0.1'
+#parser_2.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
+parser_2.add_argument("--ip", defaultIP) # if in the same machine
+parser_2.add_argument("--port", type=int, default=7500)
+# Parse the arguments
+args_2, unknown = parser_2.parse_known_args()
+# Start the UDP Client
+client_2 = udp_client.SimpleUDPClient(args_2.ip, args_2.port) 
+
+parser_3 = argparse.ArgumentParser()
+# OSC server ip: '127.0.0.1'
+#parser_2.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
+parser_3.add_argument("--ip", defaultIP) # if in the same machine
+parser_3.add_argument("--port", type=int, default=7600)
+# Parse the arguments
+args_3, unknown = parser_3.parse_known_args()
+# Start the UDP Client
+client_3 = udp_client.SimpleUDPClient(args_3.ip, args_3.port) 
+
 # success = a boolean return value from getting the frame, prev = the first frame in the entire video sequence
 success, prev = cap.read()
 
@@ -265,3 +300,4 @@ cv2.destroyAllWindows()
 
 #client.send_message("on_off", 0)
 #client_2.send_message("on_off", 0)
+#client_3.send_message("on_off", 0)
