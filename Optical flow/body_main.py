@@ -54,37 +54,26 @@ cap = cv2.VideoCapture(0)
 START_SOUND = True
 # start the osc
 # argparse helps writing user-friendly commandline interfaces
-defaultIP='127.0.0.1'
+Max8_IP='192.168.193.27'
+MusicVAE_IP='93.68.192.135'#cambiare indirizzo
 
+#Connect with Max8 on other laptop
 parser = argparse.ArgumentParser()
-# OSC server ip: '127.0.0.1'
-#parser.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
-parser.add_argument("--ip", defaultIP) # if in the same machine
+parser.add_argument("--ip", default=Max8_IP, help="The ip of the OSC server")
 parser.add_argument("--port", type=int, default=7400)
 # Parse the arguments
 args, unknown = parser.parse_known_args()
 # Start the UDP Client
-client = udp_client.SimpleUDPClient(args.ip, args.port)
+client_Max8= udp_client.SimpleUDPClient(args.ip, args.port)
 
+#Connect with MusicVAE on other laptop
 parser_2 = argparse.ArgumentParser()
-# OSC server ip: '127.0.0.1'
-#parser_2.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
-parser_2.add_argument("--ip", defaultIP) # if in the same machine
+parser_2.add_argument("--ip", default=MusicVAE_IP, help="The ip of the OSC server")
 parser_2.add_argument("--port", type=int, default=7500)
 # Parse the arguments
 args_2, unknown = parser_2.parse_known_args()
 # Start the UDP Client
-client_2 = udp_client.SimpleUDPClient(args_2.ip, args_2.port) 
-
-parser_3 = argparse.ArgumentParser()
-# OSC server ip: '127.0.0.1'
-#parser_2.add_argument("--ip", default='192.168.255.27', help="The ip of the OSC server")
-parser_3.add_argument("--ip", defaultIP) # if in the same machine
-parser_3.add_argument("--port", type=int, default=7600)
-# Parse the arguments
-args_3, unknown = parser_3.parse_known_args()
-# Start the UDP Client
-client_3 = udp_client.SimpleUDPClient(args_3.ip, args_3.port) 
+client_MusicVAE = udp_client.SimpleUDPClient(args_2.ip, args_2.port) 
 
 # success = a boolean return value from getting the frame, prev = the first frame in the entire video sequence
 success, prev = cap.read()
@@ -97,6 +86,8 @@ previous_hand_x=0.5
 previous_hand_y=0.5
 previous_head_x=0.5
 previous_head_y=0.5
+previous_left_hand_x=0.5
+previous_left_hand_y=0.5
 
 
 OPEN_RIGHT = False
@@ -213,9 +204,9 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     treshold=0.2*resize_hand   # si può modificare 0.2 o al massimo aggiungere indice, con 0.2 e senza indice a me dà i risultati migliori
     
     if distance_tot<treshold:
-      open_close="CLOSED"
+      open_close = 0 #hand is closed
     else:
-      open_close="OPEN"
+      open_close = 1 #hand is open
       
     # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
     distance_tot_norm= (distance_tot)/0.25
@@ -253,6 +244,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
         
     # TO CALCULATE HEAD AND HAND SPEED
     frame_distance_hand=((((right_wrist_x-previous_hand_x)**2 + (right_wrist_y-previous_hand_y)**2)**0.5))
+    frame_distance_left_hand=((((left_wrist_x-previous_left_hand_x)**2 + (left_wrist_y-previous_left_hand_y)**2)**0.5))
     frame_distance_head=((((center_head_x-previous_head_x)**2 + (center_head_y-previous_head_y)**2)**0.5))
     
      # Updates head previous frame
@@ -267,7 +259,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     end = time.time()
     frame_time=end-start
     
-    # 9) CLIPPING HAND SPEED
+    # 9) CLIPPING RIGHT HAND SPEED
     velocity_norm_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
     if velocity_norm_hand>1:
         velocity_norm_hand=1
@@ -276,11 +268,17 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     velocity_norm_head=((frame_distance_head/frame_time)/2)    #*resize???
     if velocity_norm_head>1:
         velocity_norm_head=1
+    
+    # 11) CLIPPING LEFT HAND SPEED
+    velocity_norm_left_hand=((frame_distance_left_hand/frame_time)/2)    #*resize???
+    if velocity_norm_left_hand>1:
+        velocity_norm_left_hand=1
+    
         
     # VARIOUS PRINTS 
-    print(f"\rRight hand's speed: {velocity_norm_hand} ")
+    # print(f"\rRight hand's speed: {velocity_norm_hand} ")
     #print(f"\rRight head's speed: {velocity_norm_head} ", end='', flush=True)
-    #print(f"\rRight hand is open/close: {open_close} ", end='', flush=True)
+    print(f"\rRight hand is open/close: {open_close} ", end='', flush=True)
     #print(f"\rHands' expansion: {hand_expansion} ")
     #print(f"\rAverage hands' height: {hands_mean_y} ")
     #print(f"\rRight hand's rotation: {right_hand_angle} ", end='', flush=True)
@@ -294,37 +292,46 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # cv2.imshow('MediaPipe Holistic', cv2.flip(image, 1))
     # cv2.imshow('flow', draw_flow(gray, flow))
     # cv2.imshow('flow HSV', draw_hsv(flow))
-    '''
-    if START_SOUND:
-            #print(center_palm_y)
-            client.send_message("freq", center_palm_y_right)
-            client_2.send_message("freq", center_palm_y_right)
-            client_3.send_message("freq", center_palm_y_right)
+    
+    
+    if START_SOUND:   
 
-            client.send_message("amp", center_palm_x_right)
-            client_2.send_message("amp", center_palm_x_right)
-            client_3.send_message("amp", center_palm_x_right)
+            client_Max8.send_message("hands_HeightAVG",hands_mean_y)
+            #Right Hand 
+            client_Max8.send_message("RH_OpenClose", open_close)
+            client_Max8.send_message("RH_Speed:", velocity_norm_hand)
+            client_Max8.send_message("RH_Expasion", hand_expansion)
+            client_Max8.send_message("RH_Rotation", right_hand_angle)
+            client_Max8.send_message("RH_GradualOpening", distance_tot_norm)
+            client_Max8.send_message("RH_camDistance", resize_hand)
             
-
-            client.send_message("fx", left_hand_angle)
-            client_2.send_message("fx", left_hand_angle)
-            client_3.send_message("fx", left_hand_angle)
-            #print(left_hand_angle)
-
+            #Left Hand
+            client_Max8.send_message("LH_Speed:", velocity_norm_hand)
+            client_Max8.send_message("LH_Expasion", hand_expansion)
+            client_Max8.send_message("LH_Rotation", right_hand_angle)
+            
+            
+            #Head
+            client_Max8.send_message("H_Speed", velocity_norm_head)
+            client_Max8.send_message("H_camDistance", resize)
+            
+            #Body
+            client_Max8.send_message("bodyDirection", norm_ang)
+            client_Max8.send_message("bodyVelocity", norm_mag)
+            '''
             if OPEN_RIGHT and not prev_state:
-                client.send_message("on_off", 1)
-                client_2.send_message("on_off", 1)
-                client_3.send_message("on_off", 1)
+                client_Max8.send_message("on_off", 1)
+                client_MusicVAE.send_message("on_off", 1)
                 print('on')
             elif not OPEN_RIGHT and prev_state:
-                client.send_message("on_off", 0)
-                client_2.send_message("on_off", 0)
-                client_3.send_message("on_off", 0)
+                client_Max8.send_message("on_off", 0)
+                client_MusicVAE.send_message("on_off", 0)
                 print('off')
-
+            '''
     prev_state = OPEN_RIGHT
-    '''
-    cv2.imshow('Clean image', cv2.flip(image, 1))
+    
+    #cv2.imshow('Clean image', cv2.flip(image, 1))
+    cv2.imshow('flow', draw_flow(gray, flow))
     key = cv2.waitKey(5)
     if key == ord('q'):
         break
@@ -333,6 +340,5 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
 cap.release()
 cv2.destroyAllWindows()
 
-client.send_message("on_off", 0)
-client_2.send_message("on_off", 0)
-client_3.send_message("on_off", 0)
+client_Max8.send_message("on_off", 0)
+client_MusicVAE.send_message("on_off", 0)
