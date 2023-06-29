@@ -46,13 +46,13 @@ def draw_hsv(flow):
 
     return bgr
 #OSC client setting
-def setOSC_Client(IP_address, nPort):
+def setOSC_Client(Parser, IP_address, nPort):
   # argparse helps writing user-friendly commandline interfaces
-  parser = argparse.ArgumentParser()
-  parser.add_argument("--ip", default=IP_address, help="The ip of the OSC server")
-  parser.add_argument("--port", type=int, default=nPort)
+  
+  Parser.add_argument("--ip", default=IP_address, help="The ip of the OSC server")
+  Parser.add_argument("--port", type=int, default=nPort)
   # Parse the arguments
-  args, unknown = parser.parse_known_args()
+  args, unknown = Parser.parse_known_args()
   # Start the UDP Client
   client = udp_client.SimpleUDPClient(args.ip, args.port)
    
@@ -67,13 +67,16 @@ START_SOUND = True
 
 Max8_IP='192.168.193.27'
 Max8_IP_port=7400
+parserMAX8 = argparse.ArgumentParser()
+
 MusicVAE_IP='93.68.192.135'
 MusicVAE_port=7500
+parserVAE = argparse.ArgumentParser()
 
 #Connect with Max8 on other laptop
-client_Max8 = setOSC_Client(Max8_IP, Max8_IP_port)
+client_Max8 = setOSC_Client(parserMAX8, Max8_IP, Max8_IP_port)
 #Connect with MusicVAE on other laptop
-client_MusicVAE = setOSC_Client(MusicVAE_IP, MusicVAE_port)
+client_MusicVAE = setOSC_Client(parserVAE, MusicVAE_IP, MusicVAE_port)
 
 # success = a boolean return value from getting the frame, prev = the first frame in the entire video sequence
 success, prev = cap.read()
@@ -316,17 +319,15 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_THUMB].visibility = 0.0
     
     #Remove Left Leg&Foot
-    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_HIP].visibility = 0.0
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_KNEE].visibility = 0.0
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_ANKLE].visibility = 0.0
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_HEEL].visibility = 0.0
-    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_LEFT_FOOT_INDEX].visibility = 0.0
-    #Remove Right Leg%Foot
-    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_HIP].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_FOOT_INDEX].visibility = 0.0
+    #Remove Right Leg&Foot
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_KNEE].visibility = 0.0
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_ANKLE].visibility = 0.0
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_HEEL].visibility = 0.0
-    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_RIGHT_FOOT_INDEX].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_FOOT_INDEX].visibility = 0.0
     
     if START_SOUND:  
             #MESSAGES TO MAX8
@@ -396,7 +397,12 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
         mp_holistic.FACEMESH_CONTOURS,
         landmark_drawing_spec=None
     )
-    
+    mp_drawing.draw_landmarks(
+      image,
+      results.pose_landmarks,
+      mp_holistic.POSE_CONNECTIONS,
+      landmark_drawing_spec=mp_drawing_styles.get_default_pose_landmarks_style()
+    )
     mp_drawing.draw_landmarks(
       image,
       results.left_hand_landmarks,
