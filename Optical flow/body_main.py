@@ -287,8 +287,46 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     print(f"\rMean direction of body's movement: {norm_ang} ", end='', flush=True)
     #print(f"\rMean magnitude of body's movement:: { norm_mag} ", end='', flush=True)
     
-  
+    # 12) Remove elements from UI
+
+    #Remove Nose
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.NOSE].visibility = 0.0
+    #Remove Left Eye
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE_INNER].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EYE_OUTER].visibility = 0.0
+    #Remove Right Eye
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EYE].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EYE_INNER].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EYE_OUTER].visibility = 0.0
+    #Remove Ears
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_EAR].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_EAR].visibility = 0.0
+    #Remove Mouth
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.MOUTH_RIGHT].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.MOUTH_LEFT].visibility = 0.0
     
+    #Remove Left Hand Wrist
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_PINKY].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_INDEX].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_THUMB].visibility = 0.0
+    #Remove Right Hand Wrist
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_PINKY].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_INDEX].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_THUMB].visibility = 0.0
+    
+    #Remove Left Leg&Foot
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_HIP].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_KNEE].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_ANKLE].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_HEEL].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.LEFT_LEFT_FOOT_INDEX].visibility = 0.0
+    #Remove Right Leg%Foot
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_HIP].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_KNEE].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_ANKLE].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_HEEL].visibility = 0.0
+    results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_RIGHT_FOOT_INDEX].visibility = 0.0
     
     if START_SOUND:  
             #MESSAGES TO MAX8
@@ -356,23 +394,18 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
         image,
         results.face_landmarks,
         mp_holistic.FACEMESH_CONTOURS,
-        landmark_drawing_spec=None,
-        #connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style()
+        landmark_drawing_spec=None
     )
     
     mp_drawing.draw_landmarks(
       image,
       results.left_hand_landmarks,
-      mp_holistic.HAND_CONNECTIONS,
-      #landmark_drawing_spec = mp_drawing_styles.get_default_hand_landmarks_style(),
-      #connection_drawing_spec = mp_drawing_styles.get_default_hand_connections_style()
+      mp_holistic.HAND_CONNECTIONS
     )
     mp_drawing.draw_landmarks(
       image,
       results.right_hand_landmarks,
-      mp_holistic.HAND_CONNECTIONS,
-      #mp_drawing_styles.get_default_hand_landmarks_style(),
-      #mp_drawing_styles.get_default_hand_connections_style()
+      mp_holistic.HAND_CONNECTIONS
     )
     
     
