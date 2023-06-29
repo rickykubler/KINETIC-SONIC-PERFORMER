@@ -5,6 +5,10 @@ import argparse
 from pythonosc import udp_client
 import math
 import time
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
+mp_holistic = mp.solutions.holistic
+mp_pose = mp.solutions.pose
 
 # PRESS q TO END THE SCRIPT
 
@@ -25,7 +29,6 @@ def draw_flow(img, flow, step=16):
         cv2.circle(img_bgr, (x1, y1), 1, (0, 255, 0), -1)
 
     return img_bgr
-
 # optical flow movement HSV (colored)
 def draw_hsv(flow):
 
@@ -42,38 +45,35 @@ def draw_hsv(flow):
     bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
     return bgr
+#OSC client setting
+def setOSC_Client(IP_address, nPort):
+  # argparse helps writing user-friendly commandline interfaces
+  parser = argparse.ArgumentParser()
+  parser.add_argument("--ip", default=IP_address, help="The ip of the OSC server")
+  parser.add_argument("--port", type=int, default=nPort)
+  # Parse the arguments
+  args, unknown = parser.parse_known_args()
+  # Start the UDP Client
+  client = udp_client.SimpleUDPClient(args.ip, args.port)
+   
+  return client
 
-mp_drawing = mp.solutions.drawing_utils
-mp_drawing_styles = mp.solutions.drawing_styles
-mp_holistic = mp.solutions.holistic
-mp_pose = mp.solutions.pose
 
 # For webcam input:
 cap = cv2.VideoCapture(0)
 
-START_SOUND = True
 # start the osc
-# argparse helps writing user-friendly commandline interfaces
+START_SOUND = True
+
 Max8_IP='192.168.193.27'
-MusicVAE_IP='93.68.192.135'#cambiare indirizzo
+Max8_IP_port=7400
+MusicVAE_IP='93.68.192.135'
+MusicVAE_port=7500
 
 #Connect with Max8 on other laptop
-parser = argparse.ArgumentParser()
-parser.add_argument("--ip", default=Max8_IP, help="The ip of the OSC server")
-parser.add_argument("--port", type=int, default=7400)
-# Parse the arguments
-args, unknown = parser.parse_known_args()
-# Start the UDP Client
-client_Max8= udp_client.SimpleUDPClient(args.ip, args.port)
-
+client_Max8 = setOSC_Client(Max8_IP, Max8_IP_port)
 #Connect with MusicVAE on other laptop
-parser_2 = argparse.ArgumentParser()
-parser_2.add_argument("--ip", default=MusicVAE_IP, help="The ip of the OSC server")
-parser_2.add_argument("--port", type=int, default=7500)
-# Parse the arguments
-args_2, unknown = parser_2.parse_known_args()
-# Start the UDP Client
-client_MusicVAE = udp_client.SimpleUDPClient(args_2.ip, args_2.port) 
+client_MusicVAE = setOSC_Client(MusicVAE_IP, MusicVAE_port)
 
 # success = a boolean return value from getting the frame, prev = the first frame in the entire video sequence
 success, prev = cap.read()
