@@ -43,8 +43,8 @@ def draw_hsv(flow):
 
     return bgr
 
-#mp_drawing = mp.solutions.drawing_utils
-#mp_drawing_styles = mp.solutions.drawing_styles
+mp_drawing = mp.solutions.drawing_utils
+mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
 mp_pose = mp.solutions.pose
 
@@ -89,11 +89,6 @@ previous_head_y=0.5
 previous_left_hand_x=0.5
 previous_left_hand_y=0.5
 
-
-OPEN_RIGHT = False
-OPEN_LEFT = False
-prev_state = False
-
 # for every frame
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
   while cap.isOpened():
@@ -107,6 +102,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # To improve performance, optionally mark the image as not writeable to pass by reference.
     image.flags.writeable = False
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    imageBackup = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = holistic.process(image)
     
     # start time to calculate time interval between two frames
@@ -227,14 +223,17 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     left_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].y
     
     # CENTER HEAD
-    center_head_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x
-    center_head_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].y
+    center_head_x= 1-results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x
+    center_head_y= 1-results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].y
     
     # HANDS ANGULATION: HANDS HEIGHT + HANDS EXPANSION
     # 7) HANDS HEIGHT --> MIDDLE POINT BETWEEN WRISTS, FOR NOW DOES NOT DEPEND ON DISTANCE 
-    hands_mean_y= (1-((left_wrist_y+right_wrist_y)/2)*resize)
+    hands_mean_x= (1-((left_wrist_x+right_wrist_x)/2)*resize)   
+    hands_mean_y= (1-((left_wrist_y+right_wrist_y)/2)*resize)   
     if hands_mean_y>1:
-        hands_mean_y=1  
+        hands_mean_y=1 
+    if hands_mean_x>1:
+        hands_mean_x=1 
     
     # 8) HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS (*resize TO ADAPT THE PARAMETER WRT DISTANCE)
     hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_x-left_wrist_y)**2)**0.5))*resize
@@ -276,62 +275,112 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
         
     # VARIOUS PRINTS 
-    # print(f"\rRight hand's speed: {velocity_norm_hand} ")
-    #print(f"\rRight head's speed: {velocity_norm_head} ", end='', flush=True)
-    print(f"\rRight hand is open/close: {open_close} ", end='', flush=True)
+    #print(f"\rRight hand's speed: {velocity_norm_hand} ")
+    #print(f"\rHead's speed: {velocity_norm_head} ", end='', flush=True)
+    #print(f"\rRight hand is open/close: {open_close} ", end='', flush=True)
     #print(f"\rHands' expansion: {hand_expansion} ")
     #print(f"\rAverage hands' height: {hands_mean_y} ")
-    #print(f"\rRight hand's rotation: {right_hand_angle} ", end='', flush=True)
-    # print(f"\rRight hand's gradual opening: {distance_tot_norm}")
+    # print(f"\rRight hand's rotation: {right_hand_angle} ", end='', flush=True)
+    #print(f"\rRight hand's gradual opening: {distance_tot_norm}")
     #print(f"\rDistance from camera: {resize} ")
     #print(f"\rDistance of right hand from camera: {resize_hand} ")
-    #print(f"\rMean direction of body's movement: {norm_ang} ", end='', flush=True)
-    # print(f"\rMean magnitude of body's movement:: { norm_mag} ", end='', flush=True)
+    print(f"\rMean direction of body's movement: {norm_ang} ", end='', flush=True)
+    #print(f"\rMean magnitude of body's movement:: { norm_mag} ", end='', flush=True)
     
-    # Flip the image horizontally for a selfie-view display.
-    # cv2.imshow('MediaPipe Holistic', cv2.flip(image, 1))
-    # cv2.imshow('flow', draw_flow(gray, flow))
-    # cv2.imshow('flow HSV', draw_hsv(flow))
+  
     
     
-    if START_SOUND:   
-
-            client_Max8.send_message("hands_HeightAVG",hands_mean_y)
+    if START_SOUND:  
+            #MESSAGES TO MAX8
+            client_Max8.send_message("/body/hands_HeightAVG",hands_mean_y)
+            #client_Max8.send_message("/body/hands_xaxisAVG",hands_mean_x)
             #Right Hand 
-            client_Max8.send_message("RH_OpenClose", open_close)
-            client_Max8.send_message("RH_Speed:", velocity_norm_hand)
-            client_Max8.send_message("RH_Expasion", hand_expansion)
-            client_Max8.send_message("RH_Rotation", right_hand_angle)
-            client_Max8.send_message("RH_GradualOpening", distance_tot_norm)
-            client_Max8.send_message("RH_camDistance", resize_hand)
+            client_Max8.send_message("/body/RH_OpenClose", open_close)
+            client_Max8.send_message("/body/RH_Speed", velocity_norm_hand)
+            client_Max8.send_message("/body/RH_Expansion", hand_expansion)
+            client_Max8.send_message("/body/RH_Rotation", right_hand_angle)
+            client_Max8.send_message("/body/RH_GradualOpening", distance_tot_norm)
+            client_Max8.send_message("/body/RH_camDistance", resize_hand)
             
             #Left Hand
-            client_Max8.send_message("LH_Speed:", velocity_norm_hand)
-            client_Max8.send_message("LH_Expasion", hand_expansion)
-            client_Max8.send_message("LH_Rotation", right_hand_angle)
-            
-            
+            #client_Max8.send_message("/body/LH_Speed",  velocity_norm_left_hand)
+            #client_Max8.send_message("/body/LH_Expasion", hand_expansion)
+            #client_Max8.send_message("/body/LH_Rotation", right_hand_angle)
+          
             #Head
-            client_Max8.send_message("H_Speed", velocity_norm_head)
-            client_Max8.send_message("H_camDistance", resize)
+            client_Max8.send_message("/body/H_Speed", velocity_norm_head)
+            client_Max8.send_message("/body/H_camDistance", resize)
+            client_Max8.send_message("/body/H_centerX", center_head_x)
+            client_Max8.send_message("/body/H_centerY", center_head_y)
             
             #Body
-            client_Max8.send_message("bodyDirection", norm_ang)
-            client_Max8.send_message("bodyVelocity", norm_mag)
+            client_Max8.send_message("/body/bodyDirection", norm_ang)
+            client_Max8.send_message("/body/bodyVelocity", norm_mag)
+            
             '''
-            if OPEN_RIGHT and not prev_state:
-                client_Max8.send_message("on_off", 1)
-                client_MusicVAE.send_message("on_off", 1)
-                print('on')
-            elif not OPEN_RIGHT and prev_state:
-                client_Max8.send_message("on_off", 0)
-                client_MusicVAE.send_message("on_off", 0)
-                print('off')
+            #MESSAGES TO MUSIC VAE
+            client_Max8.send_message("/body/hands_HeightAVG",hands_mean_y)
+            #Right Hand 
+            client_Max8.send_message("/body/RH_OpenClose", open_close)
+            client_Max8.send_message("/body/RH_Speed", velocity_norm_hand)
+            client_Max8.send_message("/body/RH_Expasion", hand_expansion)
+            client_Max8.send_message("/body/RH_Rotation", right_hand_angle)
+            client_Max8.send_message("/body/RH_GradualOpening", distance_tot_norm)
+            client_Max8.send_message("/body/RH_camDistance", resize_hand)
+            
+            #Left Hand
+            client_Max8.send_message("/body/LH_Speed",  velocity_norm_left_hand)
+            client_Max8.send_message("/body/LH_Expasion", hand_expansion)
+            client_Max8.send_message("/body/LH_Rotation", right_hand_angle)
+          
+            #Head
+            client_Max8.send_message("/body/H_Speed", velocity_norm_head)
+            client_Max8.send_message("/body/H_camDistance", resize)
+            
+            #Body
+            client_Max8.send_message("/body/bodyDirection", norm_ang)
+            client_Max8.send_message("/body/bodyVelocity", norm_mag)
             '''
-    prev_state = OPEN_RIGHT
+            
+    # Draw landmark annotation on the image.
+    image.flags.writeable = True
+    image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    mp_drawing.draw_landmarks(
+        image,
+        results.face_landmarks,
+        mp_holistic.FACEMESH_TESSELATION,
+        landmark_drawing_spec=None,
+        connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_tesselation_style()
+    )
+    mp_drawing.draw_landmarks(
+        image,
+        results.face_landmarks,
+        mp_holistic.FACEMESH_CONTOURS,
+        landmark_drawing_spec=None,
+        #connection_drawing_spec=mp_drawing_styles.get_default_face_mesh_contours_style()
+    )
     
+    mp_drawing.draw_landmarks(
+      image,
+      results.left_hand_landmarks,
+      mp_holistic.HAND_CONNECTIONS,
+      #landmark_drawing_spec = mp_drawing_styles.get_default_hand_landmarks_style(),
+      #connection_drawing_spec = mp_drawing_styles.get_default_hand_connections_style()
+    )
+    mp_drawing.draw_landmarks(
+      image,
+      results.right_hand_landmarks,
+      mp_holistic.HAND_CONNECTIONS,
+      #mp_drawing_styles.get_default_hand_landmarks_style(),
+      #mp_drawing_styles.get_default_hand_connections_style()
+    )
+    
+    
+    # Flip the image horizontally for a selfie-view display.
+    cv2.imshow('MediaPipe Holistic', cv2.flip(image, 1))
     #cv2.imshow('Clean image', cv2.flip(image, 1))
-    cv2.imshow('flow', draw_flow(gray, flow))
+    #cv2.imshow('flow', cv2.flip(draw_flow(gray, flow),1))
+    #cv2.imshow('flow HSV', cv2.flip(draw_hsv(flow),1))
     key = cv2.waitKey(5)
     if key == ord('q'):
         break
