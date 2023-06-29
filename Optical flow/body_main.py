@@ -5,6 +5,7 @@ import argparse
 from pythonosc import udp_client
 import math
 import time
+
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
@@ -46,9 +47,9 @@ def draw_hsv(flow):
 
     return bgr
 #OSC client setting
-def setOSC_Client(Parser, IP_address, nPort):
+def setOSC_Client(IP_address, nPort):
   # argparse helps writing user-friendly commandline interfaces
-  
+  Parser = argparse.ArgumentParser()
   Parser.add_argument("--ip", default=IP_address, help="The ip of the OSC server")
   Parser.add_argument("--port", type=int, default=nPort)
   # Parse the arguments
@@ -58,7 +59,6 @@ def setOSC_Client(Parser, IP_address, nPort):
    
   return client
 
-
 # For webcam input:
 cap = cv2.VideoCapture(0)
 
@@ -67,16 +67,14 @@ START_SOUND = True
 
 Max8_IP='192.168.193.27'
 Max8_IP_port=7400
-parserMAX8 = argparse.ArgumentParser()
 
 MusicVAE_IP='93.68.192.135'
 MusicVAE_port=7500
-parserVAE = argparse.ArgumentParser()
 
 #Connect with Max8 on other laptop
-client_Max8 = setOSC_Client(parserMAX8, Max8_IP, Max8_IP_port)
+client_Max8 = setOSC_Client(Max8_IP, Max8_IP_port)
 #Connect with MusicVAE on other laptop
-client_MusicVAE = setOSC_Client(parserVAE, MusicVAE_IP, MusicVAE_port)
+client_MusicVAE = setOSC_Client(MusicVAE_IP, MusicVAE_port)
 
 # success = a boolean return value from getting the frame, prev = the first frame in the entire video sequence
 success, prev = cap.read()
