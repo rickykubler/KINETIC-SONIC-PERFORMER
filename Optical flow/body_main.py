@@ -362,6 +362,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #Right Hand 
             client_Max8.send_message("/body/RH_OpenClose", open_close)
             client_Max8.send_message("/body/RH_Speed", velocity_norm_right_hand)
+            client_Max8.send_message("/body/RH_Acceleration", acceleration_norm_right_hand)
             client_Max8.send_message("/body/RH_Expansion", hand_expansion)
             client_Max8.send_message("/body/RH_Rotation", right_hand_angle)
             client_Max8.send_message("/body/RH_GradualOpening", distance_tot_norm)
@@ -369,11 +370,13 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             
             #Left Hand
             #client_Max8.send_message("/body/LH_Speed",  velocity_norm_left_hand)
+            #client_Max8.send_message("/body/LH_Acceleration",acceleration_norm_left_hand)
             #client_Max8.send_message("/body/LH_Expasion", hand_expansion)
             #client_Max8.send_message("/body/LH_Rotation", right_hand_angle)
           
             #Head
             client_Max8.send_message("/body/H_Speed", velocity_norm_head)
+            client_Max8.send_message("/body/H_Acceleration", acceleration_head)
             client_Max8.send_message("/body/H_camDistance", resize)
             client_Max8.send_message("/body/H_centerX", center_head_x)
             client_Max8.send_message("/body/H_centerY", center_head_y)
