@@ -83,12 +83,16 @@ success, prev = cap.read()
 prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
 
 # Setting default values for right hand and head
-previous_hand_x=0.5
-previous_hand_y=0.5
+previous_right_hand_x=0.5
+previous_right_hand_y=0.5
 previous_head_x=0.5
 previous_head_y=0.5
 previous_left_hand_x=0.5
 previous_left_hand_y=0.5
+
+previous_right_hand_v = 0.0
+previous_left_hand_v = 0.0
+previous_head_v = 0.0
 
 # for every frame
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
@@ -243,7 +247,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
         hand_expansion=0.5
         
     # TO CALCULATE HEAD AND HAND SPEED
-    frame_distance_hand=((((right_wrist_x-previous_hand_x)**2 + (right_wrist_y-previous_hand_y)**2)**0.5))
+    frame_distance_hand=((((right_wrist_x-previous_right_hand_x)**2 + (right_wrist_y-previous_right_hand_y)**2)**0.5))
     frame_distance_left_hand=((((left_wrist_x-previous_left_hand_x)**2 + (left_wrist_y-previous_left_hand_y)**2)**0.5))
     frame_distance_head=((((center_head_x-previous_head_x)**2 + (center_head_y-previous_head_y)**2)**0.5))
     
@@ -251,32 +255,56 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     previous_head_x= center_head_x
     previous_head_y= center_head_y
      # Updates hand previous frame
-    previous_hand_x= right_wrist_x
-    previous_hand_y= right_wrist_y
+    previous_right_hand_x= right_wrist_x
+    previous_right_hand_y= right_wrist_y
     prevgray = gray
     
      # End time
     end = time.time()
     frame_time=end-start
     
-    # 9) CLIPPING RIGHT HAND SPEED
-    velocity_norm_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
-    if velocity_norm_hand>1:
-        velocity_norm_hand=1
+    # 9) CLIPPING RIGHT HAND SPEED & ACCELERATION
+    velocity_norm_right_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
+    if velocity_norm_right_hand>1:
+       velocity_norm_right_hand=1
     
-    # 10) CLIPPING HEAD SPEED   
+    deltaV_rightHand = ((velocity_norm_right_hand - previous_right_hand_v))
+    previous_right_hand_v = velocity_norm_right_hand
+    
+    acceleration_norm_right_hand =  (deltaV_rightHand/frame_time)/10
+    if acceleration_norm_right_hand>1:
+       acceleration_norm_right_hand=1
+
+    # 10) CLIPPING HEAD SPEED & ACCELERATION
     velocity_norm_head=((frame_distance_head/frame_time)/2)    #*resize???
     if velocity_norm_head>1:
         velocity_norm_head=1
     
-    # 11) CLIPPING LEFT HAND SPEED
+    deltaV_head = ((velocity_norm_head - previous_head_v))
+    previous_head_v = velocity_norm_head
+    
+    acceleration_head =  (deltaV_head/frame_time)/10
+    if acceleration_head>1:
+       acceleration_head=1
+
+    # 11) CLIPPING LEFT HAND SPEED & ACCELERATION
     velocity_norm_left_hand=((frame_distance_left_hand/frame_time)/2)    #*resize???
     if velocity_norm_left_hand>1:
         velocity_norm_left_hand=1
+
+    deltaV_leftHand = ((velocity_norm_left_hand - previous_left_hand_v))
+    previous_left_hand_v = velocity_norm_left_hand
+    
+    acceleration_norm_left_hand = (deltaV_leftHand/frame_time)/10
+    if acceleration_norm_left_hand>1:
+       acceleration_norm_left_hand=1
     
         
     # VARIOUS PRINTS 
-    #print(f"\rRight hand's speed: {velocity_norm_hand} ")
+    #print(f"\rRight hand's speed: {velocity_norm_right_hand} ")
+    print(f"\rRight hand's acceleration: {acceleration_norm_right_hand} ")
+    print(f"\rLeft hand's acceleration: {acceleration_norm_left_hand} ")
+    print(f"\rHead's acceleration: {acceleration_head} ")
     #print(f"\rHead's speed: {velocity_norm_head} ", end='', flush=True)
     #print(f"\rRight hand is open/close: {open_close} ", end='', flush=True)
     #print(f"\rHands' expansion: {hand_expansion} ")
@@ -285,7 +313,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     #print(f"\rRight hand's gradual opening: {distance_tot_norm}")
     #print(f"\rDistance from camera: {resize} ")
     #print(f"\rDistance of right hand from camera: {resize_hand} ")
-    print(f"\rMean direction of body's movement: {norm_ang} ", end='', flush=True)
+    #print(f"\rMean direction of body's movement: {norm_ang} ", end='', flush=True)
     #print(f"\rMean magnitude of body's movement:: { norm_mag} ", end='', flush=True)
     
     # 12) Remove elements from UI
@@ -333,7 +361,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #client_Max8.send_message("/body/hands_xaxisAVG",hands_mean_x)
             #Right Hand 
             client_Max8.send_message("/body/RH_OpenClose", open_close)
-            client_Max8.send_message("/body/RH_Speed", velocity_norm_hand)
+            client_Max8.send_message("/body/RH_Speed", velocity_norm_right_hand)
             client_Max8.send_message("/body/RH_Expansion", hand_expansion)
             client_Max8.send_message("/body/RH_Rotation", right_hand_angle)
             client_Max8.send_message("/body/RH_GradualOpening", distance_tot_norm)
@@ -359,7 +387,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             client_Max8.send_message("/body/hands_HeightAVG",hands_mean_y)
             #Right Hand 
             client_Max8.send_message("/body/RH_OpenClose", open_close)
-            client_Max8.send_message("/body/RH_Speed", velocity_norm_hand)
+            client_Max8.send_message("/body/RH_Speed", velocity_norm_right_hand)
             client_Max8.send_message("/body/RH_Expasion", hand_expansion)
             client_Max8.send_message("/body/RH_Rotation", right_hand_angle)
             client_Max8.send_message("/body/RH_GradualOpening", distance_tot_norm)
