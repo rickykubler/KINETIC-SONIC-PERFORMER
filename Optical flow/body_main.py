@@ -385,8 +385,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             client_Max8.send_message("/body/bodyDirection", norm_ang)
             client_Max8.send_message("/body/bodyVelocity", norm_mag)
             
-            client_MusicVAE.send_message("/filter1", [1., 2.])
-            '''
+            
             #MESSAGES TO MUSIC VAE
             client_MusicVAE.send_message("/body/hands_HeightAVG",hands_mean_y)
             #Right Hand 
@@ -412,7 +411,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #Body
             client_MusicVAE.send_message("/body/bodyDirection", norm_ang)
             client_MusicVAE.send_message("/body/bodyVelocity", norm_mag)
-            '''
+            
             
     # Draw landmark annotation on the image.
     image.flags.writeable = True
