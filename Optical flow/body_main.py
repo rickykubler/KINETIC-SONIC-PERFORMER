@@ -152,81 +152,81 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     # 4) OPEN/CLOSE RIGHT HAND WITH DISTANCE OF FINGERS'TIPS FROM PALM CENTER
     if not results.right_hand_landmarks:
-      thumb_x=0
-      thumb_y=0
+      right_thumb_x=0
+      right_thumb_y=0
    
-      index_x=0
-      index_y=0
+      right_index_x=0
+      right_index_y=0
     
-      middle_x=0
-      middle_y=0
+      right_middle_x=0
+      right_middle_y=0
     
-      ring_x=0
-      ring_y=0
+      right_ring_x=0
+      right_ring_y=0
   
-      pinky_x=0
-      pinky_y=0
+      right_pinky_x=0
+      right_pinky_y=0
     
-      wrist_x=0
-      wrist_y=0
+      Rwrist_x=0
+      Rwrist_y=0
     
     if results.right_hand_landmarks:
-      thumb_x=results.right_hand_landmarks.landmark[4].x
-      thumb_y=results.right_hand_landmarks.landmark[4].y
+      right_thumb_x=results.right_hand_landmarks.landmark[4].x
+      right_thumb_y=results.right_hand_landmarks.landmark[4].y
    
-      index_x=results.right_hand_landmarks.landmark[8].x
-      index_y=results.right_hand_landmarks.landmark[8].y
+      right_index_x=results.right_hand_landmarks.landmark[8].x
+      right_index_y=results.right_hand_landmarks.landmark[8].y
     
-      middle_x=results.right_hand_landmarks.landmark[12].x
-      middle_y=results.right_hand_landmarks.landmark[12].y
+      right_middle_x=results.right_hand_landmarks.landmark[12].x
+      right_middle_y=results.right_hand_landmarks.landmark[12].y
     
-      ring_x=results.right_hand_landmarks.landmark[16].x
-      ring_y=results.right_hand_landmarks.landmark[16].y
+      right_ring_x=results.right_hand_landmarks.landmark[16].x
+      right_ring_y=results.right_hand_landmarks.landmark[16].y
   
-      pinky_x=results.right_hand_landmarks.landmark[20].x
-      pinky_y=results.right_hand_landmarks.landmark[20].y
+      right_pinky_x=results.right_hand_landmarks.landmark[20].x
+      right_pinky_y=results.right_hand_landmarks.landmark[20].y
     
-      wrist_x=results.right_hand_landmarks.landmark[0].x
-      wrist_y=results.right_hand_landmarks.landmark[0].y
+      Rwrist_x=results.right_hand_landmarks.landmark[0].x
+      Rwrist_y=results.right_hand_landmarks.landmark[0].y
       
     # CENTER RIGHT HAND 
-    center_x=(thumb_x+index_x+middle_x+ring_x+pinky_x)/5
-    center_y=(thumb_x+index_y+middle_y+ring_y+pinky_y)/5
+    right_hand_center_x=(right_thumb_x+right_index_x+right_middle_x+right_ring_x+right_pinky_x)/5
+    right_hand_center_y=(right_thumb_x+right_index_y+right_middle_y+right_ring_y+right_pinky_y)/5
     
     # DISTANCE BETWEEN EVERY FINGER AND CENTER OF THE RIGHT PALM
-    distance_thumb=((center_x - thumb_x)**2 + (center_y - thumb_y)**2)**0.5
-    # distance_index=((center_x - index_x)**2 + (center_y - index_y)**2)**0.5  SE TI ALLONTANI MEDIAPIPE DA' PROBLEMI SOPRATTUTTO CON INDICE
-    distance_middle=((center_x - middle_x)**2 + (center_y - middle_y)**2)**0.5
-    distance_ring=((center_x - ring_x)**2 + (center_y - ring_y)**2)**0.5
-    distance_pinky=((center_x - pinky_x)**2 + (center_y - pinky_y)**2)**0.5
+    right_hand_distance_thumb=((right_hand_center_x - right_thumb_x)**2 + (right_hand_center_y - right_thumb_y)**2)**0.5
+    #right_hand_distance_index=((right_hand_center_x - right_index_x)**2 + (right_hand_center_y - right_index_y)**2)**0.5  SE TI ALLONTANI MEDIAPIPE DA' PROBLEMI SOPRATTUTTO CON INDICE
+    right_hand_distance_middle=((right_hand_center_x - right_middle_x)**2 + (right_hand_center_y - right_middle_y)**2)**0.5
+    right_hand_distance_ring=((right_hand_center_x - right_ring_x)**2 + (right_hand_center_y - right_ring_y)**2)**0.5
+    right_hand_distance_pinky=((right_hand_center_x - right_pinky_x)**2 + (right_hand_center_y - right_pinky_y)**2)**0.5
     
     # TOTAL DISTANCE OF FINGER TIPS FROM PALM CENTER (*resize TO ADAPT THE PARAMETER WRT DISTANCE)
     # se lontana il resize influisce poco, se vicina il resize influisce di più
-    distance_tot= (distance_thumb + distance_middle + distance_ring +  distance_pinky)*resize_hand
+    right_hand_distance_tot= (right_hand_distance_thumb + right_hand_distance_middle + right_hand_distance_ring +  right_hand_distance_pinky)*resize_hand
     
     # THRESHOLD FOR OPEN/CLOSE RESIZED
     treshold=0.2*resize_hand   # si può modificare 0.2 o al massimo aggiungere indice, con 0.2 e senza indice a me dà i risultati migliori
     
-    if distance_tot<treshold:
+    if right_hand_distance_tot<treshold:
       open_close = 0 #hand is closed
     else:
       open_close = 1 #hand is open
       
-    # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
-    distance_tot_norm= (distance_tot)/0.5
+    # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN right_hand_distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
+    right_hand_distance_tot_norm= (right_hand_distance_tot)/0.5
     
     #Normalized between max value and min value.
-    distance_tot_norm = (distance_tot_norm - 0.2)/0.4 
+    right_hand_distance_tot_norm = (right_hand_distance_tot_norm - 0.2)/0.4 
 
-    if distance_tot_norm>1:
-        distance_tot_norm=1
-    if distance_tot_norm<0:
-        distance_tot_norm=0
+    if right_hand_distance_tot_norm>1:
+        right_hand_distance_tot_norm=1
+    if right_hand_distance_tot_norm<0:
+        right_hand_distance_tot_norm=0
 
 
     # 6) ROTATION OF THE RIGHT HAND
-    coord_x_right = middle_x - wrist_x
-    coord_y_right = middle_y - wrist_y
+    coord_x_right = right_middle_x - Rwrist_x
+    coord_y_right = right_middle_y - Rwrist_y
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
     
     # RIGHT HAND WRIST  (fare solo un wrist?)
@@ -258,7 +258,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
         
     # TO CALCULATE HEAD AND HAND SPEED
     #frame_distance_right_hand=((((right_wrist_x-previous_right_hand_x)**2 + (right_wrist_y-previous_right_hand_y)**2)**0.5))
-    frame_distance_right_hand=((((middle_x-previous_right_hand_x)**2 + (middle_y-previous_right_hand_y)**2)**0.5))
+    frame_distance_right_hand=((((right_middle_x-previous_right_hand_x)**2 + (right_middle_y-previous_right_hand_y)**2)**0.5))
     
     frame_distance_left_hand=((((left_wrist_x-previous_left_hand_x)**2 + (left_wrist_y-previous_left_hand_y)**2)**0.5))
     frame_distance_head=((((center_head_x-previous_head_x)**2 + (center_head_y-previous_head_y)**2)**0.5))
@@ -269,8 +269,8 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
      # Updates hand previous frame
     #previous_right_hand_x= right_wrist_x
     #previous_right_hand_y= right_wrist_y
-    previous_right_hand_x= middle_x
-    previous_right_hand_y= middle_y
+    previous_right_hand_x= right_middle_x
+    previous_right_hand_y= right_middle_y
     
     prevgray = gray
     
@@ -329,7 +329,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     #print(f"\rHands' expansion: {hand_expansion} ")
     #print(f"\rAverage hands' height: {hands_mean_y} ")
     # print(f"\rRight hand's rotation: {right_hand_angle} ", end='', flush=True)
-    #print(f"\rRight hand's gradual opening: {distance_tot_norm}")
+    #print(f"\rRight hand's gradual opening: {right_hand_distance_tot_norm}")
     #print(f"\rDistance from camera: {resize} ")
     #print(f"\rDistance of right hand from camera: {resize_hand} ")
     #print(f"\rMean direction of body's movement: {norm_ang} ", end='', flush=True)
@@ -384,7 +384,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #client_Max8.send_message("/body/righthand/Acceleration", acceleration_norm_right_hand)
             client_Max8.send_message("/body/righthand/expansion", hand_expansion)
             client_Max8.send_message("/body/righthand/rotation", right_hand_angle)
-            client_Max8.send_message("/body/righthand/gradualOpening", distance_tot_norm)
+            client_Max8.send_message("/body/righthand/gradualOpening", right_hand_distance_tot_norm)
             client_Max8.send_message("/body/righthand/camDistance", resize_hand)
             
             #Left Hand
@@ -414,7 +414,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #client_MusicVAE.send_message("/body/righthand/acceleration", acceleration_norm_right_hand)
             client_MusicVAE.send_message("/body/righthand/expansion", hand_expansion)
             client_MusicVAE.send_message("/body/righthand/rotation", right_hand_angle)
-            client_MusicVAE.send_message("/body/righthand/gradualOpening", distance_tot_norm)
+            client_MusicVAE.send_message("/body/righthand/gradualOpening", right_hand_distance_tot_norm)
             client_MusicVAE.send_message("/body/righthand/camDistance", resize_hand)
             
             #Left Hand
