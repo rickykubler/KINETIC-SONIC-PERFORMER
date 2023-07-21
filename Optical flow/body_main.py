@@ -66,7 +66,7 @@ cap = cv2.VideoCapture(0)
 START_SOUND = True
 
 Max8_IP='192.168.1.213'
-Max8_IP_port=7374
+Max8_IP_port=7400
 
 MusicVAE_IP='192.168.1.159'
 MusicVAE_port=7400
@@ -83,8 +83,11 @@ success, prev = cap.read()
 prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
 
 # Setting default values for right hand and head
-previous_right_hand_x=0.5
-previous_right_hand_y=0.5
+previous_right_hand_x=0.1
+previous_right_hand_y=0.1
+
+#previous_right_hand_x=0.5
+#previous_right_hand_y=0.5
 previous_head_x=0.5
 previous_head_y=0.5
 previous_left_hand_x=0.5
@@ -210,9 +213,16 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       open_close = 1 #hand is open
       
     # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
-    distance_tot_norm= (distance_tot)/0.25
+    distance_tot_norm= (distance_tot)/0.5
+    
+    #Normalized between max value and min value.
+    distance_tot_norm = (distance_tot_norm - 0.2)/0.4 
+
     if distance_tot_norm>1:
         distance_tot_norm=1
+    if distance_tot_norm<0:
+        distance_tot_norm=0
+
 
     # 6) ROTATION OF THE RIGHT HAND
     coord_x_right = middle_x - wrist_x
@@ -247,7 +257,9 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
         hand_expansion=0.5
         
     # TO CALCULATE HEAD AND HAND SPEED
-    frame_distance_hand=((((right_wrist_x-previous_right_hand_x)**2 + (right_wrist_y-previous_right_hand_y)**2)**0.5))
+    #frame_distance_right_hand=((((right_wrist_x-previous_right_hand_x)**2 + (right_wrist_y-previous_right_hand_y)**2)**0.5))
+    frame_distance_right_hand=((((middle_x-previous_right_hand_x)**2 + (middle_y-previous_right_hand_y)**2)**0.5))
+    
     frame_distance_left_hand=((((left_wrist_x-previous_left_hand_x)**2 + (left_wrist_y-previous_left_hand_y)**2)**0.5))
     frame_distance_head=((((center_head_x-previous_head_x)**2 + (center_head_y-previous_head_y)**2)**0.5))
     
@@ -255,8 +267,11 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     previous_head_x= center_head_x
     previous_head_y= center_head_y
      # Updates hand previous frame
-    previous_right_hand_x= right_wrist_x
-    previous_right_hand_y= right_wrist_y
+    #previous_right_hand_x= right_wrist_x
+    #previous_right_hand_y= right_wrist_y
+    previous_right_hand_x= middle_x
+    previous_right_hand_y= middle_y
+    
     prevgray = gray
     
      # End time
@@ -264,14 +279,18 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     frame_time=end-start
     
     # 9) CLIPPING RIGHT HAND SPEED & ACCELERATION
-    velocity_norm_right_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
+    #velocity_norm_right_hand=((frame_distance_right_hand/frame_time)/2)   #*resize_hand???
+    velocity_norm_right_hand=((frame_distance_right_hand/frame_time))   #*resize_hand???
+    
+    print((frame_distance_right_hand/frame_time))
+    #print(velocity_norm_right_hand)
     if velocity_norm_right_hand>1:
        velocity_norm_right_hand=1
     
-    deltaV_rightHand = ((velocity_norm_right_hand - previous_right_hand_v))
+    deltaV_righthand = ((velocity_norm_right_hand - previous_right_hand_v))
     previous_right_hand_v = velocity_norm_right_hand
     
-    acceleration_norm_right_hand =  (deltaV_rightHand/frame_time)/10
+    acceleration_norm_right_hand =  (deltaV_righthand/frame_time)/10
     if acceleration_norm_right_hand>1:
        acceleration_norm_right_hand=1
 
@@ -292,16 +311,16 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     if velocity_norm_left_hand>1:
         velocity_norm_left_hand=1
 
-    deltaV_leftHand = ((velocity_norm_left_hand - previous_left_hand_v))
+    deltaV_lefthand = ((velocity_norm_left_hand - previous_left_hand_v))
     previous_left_hand_v = velocity_norm_left_hand
     
-    acceleration_norm_left_hand = (deltaV_leftHand/frame_time)/10
+    acceleration_norm_left_hand = (deltaV_lefthand/frame_time)/10
     if acceleration_norm_left_hand>1:
        acceleration_norm_left_hand=1
     
         
     # VARIOUS PRINTS 
-    print(f"\rRight hand's speed: {velocity_norm_right_hand} ")
+    #print(f"\rRight hand's speed: {velocity_norm_right_hand} ")
     #print(f"\rRight hand's acceleration: {acceleration_norm_right_hand} ")
     #print(f"\rLeft hand's acceleration: {acceleration_norm_left_hand} ")
     #print(f"\rHead's acceleration: {acceleration_head} ")
@@ -357,60 +376,63 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     if START_SOUND:  
             #MESSAGES TO MAX8
-            client_Max8.send_message("/body/hands_HeightAVG",hands_mean_y)
-            #client_Max8.send_message("/body/hands_xaxisAVG",hands_mean_x)
+            client_Max8.send_message("/body/hands/HeightAVG",hands_mean_y)
+            #client_Max8.send_message("/body/hands/xaxisAVG",hands_mean_x)
             #Right Hand 
-            client_Max8.send_message("/body/RH_OpenClose", open_close)
-            client_Max8.send_message("/body/RH_Speed", velocity_norm_right_hand)
-            #client_Max8.send_message("/body/RH_Acceleration", acceleration_norm_right_hand)
-            client_Max8.send_message("/body/RH_Expansion", hand_expansion)
-            client_Max8.send_message("/body/RH_Rotation", right_hand_angle)
-            client_Max8.send_message("/body/RH_GradualOpening", distance_tot_norm)
-            client_Max8.send_message("/body/RH_camDistance", resize_hand)
+            client_Max8.send_message("/body/righthand/OpenClose", open_close)
+            client_Max8.send_message("/body/righthand/Speed", velocity_norm_right_hand)
+            #client_Max8.send_message("/body/righthand/Acceleration", acceleration_norm_right_hand)
+            client_Max8.send_message("/body/righthand/Expansion", hand_expansion)
+            client_Max8.send_message("/body/righthand/Rotation", right_hand_angle)
+            client_Max8.send_message("/body/righthand/GradualOpening", distance_tot_norm)
+            client_Max8.send_message("/body/righthand/camDistance", resize_hand)
             
             #Left Hand
-            #client_Max8.send_message("/body/LH_Speed",  velocity_norm_left_hand)
-            #client_Max8.send_message("/body/LH_Acceleration",acceleration_norm_left_hand)
-            #client_Max8.send_message("/body/LH_Expasion", hand_expansion)
-            #client_Max8.send_message("/body/LH_Rotation", right_hand_angle)
+            #client_Max8.send_message("/body/lefthand/Speed",  velocity_norm_left_hand)
+            #client_Max8.send_message("/body/lefthand/Acceleration",acceleration_norm_left_hand)
+            #client_Max8.send_message("/body/lefthand/Expasion", hand_expansion)
+            #client_Max8.send_message("/body/lefthand/Rotation", right_hand_angle)
           
             #Head
-            client_Max8.send_message("/body/H_Speed", velocity_norm_head)
-            #client_Max8.send_message("/body/H_Acceleration", acceleration_head)
-            client_Max8.send_message("/body/H_camDistance", resize)
-            client_Max8.send_message("/body/H_centerX", center_head_x)
-            client_Max8.send_message("/body/H_centerY", center_head_y)
+            client_Max8.send_message("/body/head/Speed", velocity_norm_head)
+            #client_Max8.send_message("/body/head/Acceleration", acceleration_head)
+            client_Max8.send_message("/body/head/camDistance", resize)
+            client_Max8.send_message("/body/head/centerX", center_head_x)
+            client_Max8.send_message("/body/head/centerY", center_head_y)
             
             #Body
-            client_Max8.send_message("/body/bodyDirection", norm_ang)
-            client_Max8.send_message("/body/bodyVelocity", norm_mag)
+            client_Max8.send_message("/body/body/Direction", norm_ang)
+            client_Max8.send_message("/body/body/Velocity", norm_mag)
             
             
             #MESSAGES TO MUSIC VAE
-            client_MusicVAE.send_message("/body/hands_HeightAVG",hands_mean_y)
+            client_MusicVAE.send_message("/body/hands/HeightAVG",hands_mean_y)
+            #client_MusicVAE.send_message("/body/hands/xaxisAVG",hands_mean_x)
             #Right Hand 
-            client_MusicVAE.send_message("/body/RH_OpenClose", open_close)
-            client_MusicVAE.send_message("/body/RH_Speed", velocity_norm_right_hand)
-            client_MusicVAE.send_message("/body/RH_Acceleration", acceleration_norm_right_hand)
-            client_MusicVAE.send_message("/body/RH_Expasion", hand_expansion)
-            client_MusicVAE.send_message("/body/RH_Rotation", right_hand_angle)
-            client_MusicVAE.send_message("/body/RH_GradualOpening", distance_tot_norm)
-            client_MusicVAE.send_message("/body/RH_camDistance", resize_hand)
+            client_MusicVAE.send_message("/body/righthand/OpenClose", open_close)
+            client_MusicVAE.send_message("/body/righthand/Speed", velocity_norm_right_hand)
+            #client_MusicVAE.send_message("/body/righthand/Acceleration", acceleration_norm_right_hand)
+            client_MusicVAE.send_message("/body/righthand/Expansion", hand_expansion)
+            client_MusicVAE.send_message("/body/righthand/Rotation", right_hand_angle)
+            client_MusicVAE.send_message("/body/righthand/GradualOpening", distance_tot_norm)
+            client_MusicVAE.send_message("/body/righthand/camDistance", resize_hand)
             
             #Left Hand
-            client_MusicVAE.send_message("/body/LH_Speed",  velocity_norm_left_hand)
-            #client_MusicVAE.send_message("/body/LH_Acceleration",acceleration_norm_left_hand)
-            client_MusicVAE.send_message("/body/LH_Expasion", hand_expansion)
-            client_MusicVAE.send_message("/body/LH_Rotation", right_hand_angle)
+            #client_MusicVAE.send_message("/body/lefthand/Speed",  velocity_norm_left_hand)
+            #client_MusicVAE.send_message("/body/lefthand/Acceleration",acceleration_norm_left_hand)
+            #client_MusicVAE.send_message("/body/lefthand/Expasion", hand_expansion)
+            #client_MusicVAE.send_message("/body/lefthand/Rotation", right_hand_angle)
           
             #Head
-            client_MusicVAE.send_message("/body/H_Speed", velocity_norm_head)
-            client_MusicVAE.send_message("/body/H_Acceleration", acceleration_head)
-            client_MusicVAE.send_message("/body/H_camDistance", resize)
+            client_MusicVAE.send_message("/body/head/Speed", velocity_norm_head)
+            #client_MusicVAE.send_message("/body/head/Acceleration", acceleration_head)
+            client_MusicVAE.send_message("/body/head/camDistance", resize)
+            client_MusicVAE.send_message("/body/head/centerX", center_head_x)
+            client_MusicVAE.send_message("/body/head/centerY", center_head_y)
             
             #Body
-            client_MusicVAE.send_message("/body/bodyDirection", norm_ang)
-            client_MusicVAE.send_message("/body/bodyVelocity", norm_mag)
+            client_MusicVAE.send_message("/body/body/Direction", norm_ang)
+            client_MusicVAE.send_message("/body/body/Velocity", norm_mag)
             
             
     # Draw landmark annotation on the image.
