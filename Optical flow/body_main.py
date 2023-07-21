@@ -150,7 +150,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # /1.7 (1.7 maximum distance perceived) gives a normalization of distance, a percentage of how much you are distant
     resize_hand=((3-abs(right_wrist_depth))*(0.6))/(1.7)
     
-    # 4) OPEN/CLOSE RIGHT HAND WITH DISTANCE OF FINGERS'TIPS FROM PALM CENTER
+    # 4) OPEN/CLOSE RIGHT HAND & LEFT HAND WITH DISTANCE OF FINGERS'TIPS FROM PALM CENTER
     if not results.right_hand_landmarks:
       right_thumb_x=0
       right_thumb_y=0
@@ -188,46 +188,108 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
       Rwrist_x=results.right_hand_landmarks.landmark[0].x
       Rwrist_y=results.right_hand_landmarks.landmark[0].y
+
+    if not results.right_hand_landmarks:
+      left_thumb_x=0
+      left_thumb_y=0
+   
+      left_index_x=0
+      left_index_y=0
+    
+      left_middle_x=0
+      left_middle_y=0
+    
+      left_ring_x=0
+      left_ring_y=0
+  
+      left_pinky_x=0
+      left_pinky_y=0
+    
+      Lwrist_x=0
+      Lwrist_y=0
+    
+    if results.left_hand_landmarks:
+      left_thumb_x=results.left_hand_landmarks.landmark[4].x
+      left_thumb_y=results.left_hand_landmarks.landmark[4].y
+   
+      left_index_x=results.left_hand_landmarks.landmark[8].x
+      left_index_y=results.left_hand_landmarks.landmark[8].y
+    
+      left_middle_x=results.left_hand_landmarks.landmark[12].x
+      left_middle_y=results.left_hand_landmarks.landmark[12].y
+    
+      left_ring_x=results.left_hand_landmarks.landmark[16].x
+      left_ring_y=results.left_hand_landmarks.landmark[16].y
+  
+      left_pinky_x=results.left_hand_landmarks.landmark[20].x
+      left_pinky_y=results.left_hand_landmarks.landmark[20].y
+    
+      Lwrist_x=results.left_hand_landmarks.landmark[0].x
+      Lwrist_y=results.left_hand_landmarks.landmark[0].y
       
-    # CENTER RIGHT HAND 
+    # CENTER RIGHT HAND & LEFT HAND
     right_hand_center_x=(right_thumb_x+right_index_x+right_middle_x+right_ring_x+right_pinky_x)/5
     right_hand_center_y=(right_thumb_x+right_index_y+right_middle_y+right_ring_y+right_pinky_y)/5
+    left_hand_center_x=(left_thumb_x+left_index_x+left_middle_x+left_ring_x+left_pinky_x)/5
+    left_hand_center_y=(left_thumb_x+left_index_y+left_middle_y+left_ring_y+left_pinky_y)/5
     
-    # DISTANCE BETWEEN EVERY FINGER AND CENTER OF THE RIGHT PALM
+    # DISTANCE BETWEEN EVERY FINGER AND CENTER OF THE RIGHT PALM & LEFT PALM
     right_hand_distance_thumb=((right_hand_center_x - right_thumb_x)**2 + (right_hand_center_y - right_thumb_y)**2)**0.5
     #right_hand_distance_index=((right_hand_center_x - right_index_x)**2 + (right_hand_center_y - right_index_y)**2)**0.5  SE TI ALLONTANI MEDIAPIPE DA' PROBLEMI SOPRATTUTTO CON INDICE
     right_hand_distance_middle=((right_hand_center_x - right_middle_x)**2 + (right_hand_center_y - right_middle_y)**2)**0.5
     right_hand_distance_ring=((right_hand_center_x - right_ring_x)**2 + (right_hand_center_y - right_ring_y)**2)**0.5
     right_hand_distance_pinky=((right_hand_center_x - right_pinky_x)**2 + (right_hand_center_y - right_pinky_y)**2)**0.5
     
+    left_hand_distance_thumb=((left_hand_center_x - left_thumb_x)**2 + (left_hand_center_y - left_thumb_y)**2)**0.5
+    #left_hand_distance_index=((left_hand_center_x - left_index_x)**2 + (left_hand_center_y - left_index_y)**2)**0.5  SE TI ALLONTANI MEDIAPIPE DA' PROBLEMI SOPRATTUTTO CON INDICE
+    left_hand_distance_middle=((left_hand_center_x - left_middle_x)**2 + (left_hand_center_y - left_middle_y)**2)**0.5
+    left_hand_distance_ring=((left_hand_center_x - left_ring_x)**2 + (left_hand_center_y - left_ring_y)**2)**0.5
+    left_hand_distance_pinky=((left_hand_center_x - left_pinky_x)**2 + (left_hand_center_y - left_pinky_y)**2)**0.5
+    
     # TOTAL DISTANCE OF FINGER TIPS FROM PALM CENTER (*resize TO ADAPT THE PARAMETER WRT DISTANCE)
     # se lontana il resize influisce poco, se vicina il resize influisce di più
     right_hand_distance_tot= (right_hand_distance_thumb + right_hand_distance_middle + right_hand_distance_ring +  right_hand_distance_pinky)*resize_hand
+    left_hand_distance_tot= (left_hand_distance_thumb + left_hand_distance_middle + left_hand_distance_ring +  left_hand_distance_pinky)*resize_hand
     
     # THRESHOLD FOR OPEN/CLOSE RESIZED
     treshold=0.2*resize_hand   # si può modificare 0.2 o al massimo aggiungere indice, con 0.2 e senza indice a me dà i risultati migliori
     
     if right_hand_distance_tot<treshold:
-      open_close = 0 #hand is closed
+      right_hand_open_close = 0 #hand is closed
     else:
-      open_close = 1 #hand is open
+      right_hand_open_close = 1 #hand is open
+
+    if left_hand_distance_tot<treshold:
+      left_hand_open_close = 0 #hand is closed
+    else:
+      left_hand_open_close = 1 #hand is open
       
-    # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN right_hand_distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
+    # 5) GRADUAL OPENING THE RIGHT HAND & LEFT HAND (*resize ALREADY DONE IN right_hand_distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
     right_hand_distance_tot_norm= (right_hand_distance_tot)/0.5
+    left_hand_distance_tot_norm= (left_hand_distance_tot)/0.5
     
     #Normalized between max value and min value.
     right_hand_distance_tot_norm = (right_hand_distance_tot_norm - 0.2)/0.4 
+    left_hand_distance_tot_norm = (left_hand_distance_tot_norm - 0.2)/0.4 
 
     if right_hand_distance_tot_norm>1:
         right_hand_distance_tot_norm=1
     if right_hand_distance_tot_norm<0:
         right_hand_distance_tot_norm=0
 
+    if left_hand_distance_tot_norm>1:
+        left_hand_distance_tot_norm=1
+    if left_hand_distance_tot_norm<0:
+        left_hand_distance_tot_norm=0
 
-    # 6) ROTATION OF THE RIGHT HAND
+    # 6) ROTATION OF THE RIGHT HAND & LEFT HAND
     coord_x_right = right_middle_x - Rwrist_x
     coord_y_right = right_middle_y - Rwrist_y
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
+    
+    coord_x_left = left_middle_x - Lwrist_x
+    coord_y_left = left_middle_y - Lwrist_y
+    left_hand_angle = abs(math.atan2(coord_x_left, coord_y_left))/math.pi
     
     # RIGHT HAND WRIST  (fare solo un wrist?)
     right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].x
@@ -251,10 +313,15 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
         hands_mean_x=1 
     
     # 8) HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS (*resize TO ADAPT THE PARAMETER WRT DISTANCE)
-    hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_x-left_wrist_y)**2)**0.5))*resize
-    # hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
-    if hand_expansion>1:
-        hand_expansion=0.5
+    right_hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_x-left_wrist_y)**2)**0.5))*resize
+    # right_hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
+    if right_hand_expansion>1:
+        right_hand_expansion=0.5
+
+    left_hand_expansion= ((((left_wrist_x-right_wrist_x)**2 + (left_wrist_x-right_wrist_y)**2)**0.5))*resize
+    # left_hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
+    if left_hand_expansion>1:
+        left_hand_expansion=0.5
         
     # TO CALCULATE HEAD AND HAND SPEED
     #frame_distance_right_hand=((((right_wrist_x-previous_right_hand_x)**2 + (right_wrist_y-previous_right_hand_y)**2)**0.5))
@@ -282,7 +349,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     #velocity_norm_right_hand=((frame_distance_right_hand/frame_time)/2)   #*resize_hand???
     velocity_norm_right_hand=((frame_distance_right_hand/frame_time))   #*resize_hand???
     
-    print((frame_distance_right_hand/frame_time))
+    #print((frame_distance_right_hand/frame_time))
     #print(velocity_norm_right_hand)
     if velocity_norm_right_hand>1:
        velocity_norm_right_hand=1
@@ -325,8 +392,8 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     #print(f"\rLeft hand's acceleration: {acceleration_norm_left_hand} ")
     #print(f"\rHead's acceleration: {acceleration_head} ")
     #print(f"\rHead's speed: {velocity_norm_head} ", end='', flush=True)
-    #print(f"\rRight hand is open/close: {open_close} ", end='', flush=True)
-    #print(f"\rHands' expansion: {hand_expansion} ")
+    #print(f"\rRight hand is open/close: {right_hand_open_close} ", end='', flush=True)
+    #print(f"\rHands' expansion: {right_hand_expansion} ")
     #print(f"\rAverage hands' height: {hands_mean_y} ")
     # print(f"\rRight hand's rotation: {right_hand_angle} ", end='', flush=True)
     #print(f"\rRight hand's gradual opening: {right_hand_distance_tot_norm}")
@@ -379,19 +446,26 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             client_Max8.send_message("/body/hands/heightAVG",hands_mean_y)
             #client_Max8.send_message("/body/hands/xaxisAVG",hands_mean_x)
             #Right Hand 
-            client_Max8.send_message("/body/righthand/openClose", open_close)
-            client_Max8.send_message("/body/righthand/Speed", velocity_norm_right_hand)
-            #client_Max8.send_message("/body/righthand/Acceleration", acceleration_norm_right_hand)
-            client_Max8.send_message("/body/righthand/expansion", hand_expansion)
+            client_Max8.send_message("/body/righthand/openClose", right_hand_open_close)
+            client_Max8.send_message("/body/righthand/speed", velocity_norm_right_hand)
+            client_Max8.send_message("/body/righthand/acceleration", acceleration_norm_right_hand)
+            client_Max8.send_message("/body/righthand/expansion", right_hand_expansion)
             client_Max8.send_message("/body/righthand/rotation", right_hand_angle)
             client_Max8.send_message("/body/righthand/gradualOpening", right_hand_distance_tot_norm)
             client_Max8.send_message("/body/righthand/camDistance", resize_hand)
+            client_Max8.send_message("/body/righthand/x", right_wrist_x)
+            client_Max8.send_message("/body/righthand/y", right_wrist_y)
             
             #Left Hand
-            #client_Max8.send_message("/body/lefthand/speed",  velocity_norm_left_hand)
-            #client_Max8.send_message("/body/lefthand/acceleration",acceleration_norm_left_hand)
-            #client_Max8.send_message("/body/lefthand/expasion", hand_expansion)
-            #client_Max8.send_message("/body/lefthand/rotation", right_hand_angle)
+            client_Max8.send_message("/body/lefthand/openClose", left_hand_open_close)
+            client_Max8.send_message("/body/lefthand/speed", velocity_norm_left_hand)
+            client_Max8.send_message("/body/lefthand/acceleration", acceleration_norm_left_hand)
+            client_Max8.send_message("/body/lefthand/expansion", left_hand_expansion)
+            client_Max8.send_message("/body/lefthand/rotation", left_hand_angle)
+            client_Max8.send_message("/body/lefthand/gradualOpening", left_hand_distance_tot_norm)
+            #client_Max8.send_message("/body/lefthand/camDistance", resize_hand)
+            client_Max8.send_message("/body/lefthand/x", left_wrist_x)
+            client_Max8.send_message("/body/lefthand/y", left_wrist_y)
           
             #Head
             client_Max8.send_message("/body/head/speed", velocity_norm_head)
@@ -408,21 +482,29 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #MESSAGES TO MUSIC VAE
             client_MusicVAE.send_message("/body/hands/heightAVG",hands_mean_y)
             #client_MusicVAE.send_message("/body/hands/xaxisAVG",hands_mean_x)
+            
             #Right Hand 
-            client_MusicVAE.send_message("/body/righthand/openClose", open_close)
+            client_MusicVAE.send_message("/body/righthand/openClose", right_hand_open_close)
             client_MusicVAE.send_message("/body/righthand/speed", velocity_norm_right_hand)
             #client_MusicVAE.send_message("/body/righthand/acceleration", acceleration_norm_right_hand)
-            client_MusicVAE.send_message("/body/righthand/expansion", hand_expansion)
+            client_MusicVAE.send_message("/body/righthand/expansion", right_hand_expansion)
             client_MusicVAE.send_message("/body/righthand/rotation", right_hand_angle)
             client_MusicVAE.send_message("/body/righthand/gradualOpening", right_hand_distance_tot_norm)
             client_MusicVAE.send_message("/body/righthand/camDistance", resize_hand)
+            client_Max8.send_message("/body/righthand/x", right_wrist_x)
+            client_Max8.send_message("/body/righthand/y", right_wrist_y)
             
             #Left Hand
-            #client_MusicVAE.send_message("/body/lefthand/speed",  velocity_norm_left_hand)
-            #client_MusicVAE.send_message("/body/lefthand/acceleration",acceleration_norm_left_hand)
-            #client_MusicVAE.send_message("/body/lefthand/expasion", hand_expansion)
-            #client_MusicVAE.send_message("/body/lefthand/rotation", right_hand_angle)
-          
+            client_MusicVAE.send_message("/body/lefthand/openClose", left_hand_open_close)
+            client_MusicVAE.send_message("/body/lefthand/speed", velocity_norm_left_hand)
+            client_MusicVAE.send_message("/body/lefthand/acceleration", acceleration_norm_left_hand)
+            client_MusicVAE.send_message("/body/lefthand/expansion", left_hand_expansion)
+            client_MusicVAE.send_message("/body/lefthand/rotation", left_hand_angle)
+            client_MusicVAE.send_message("/body/lefthand/gradualOpening", left_hand_distance_tot_norm)
+            #client_MusicVAE.send_message("/body/lefthand/camDistance", resize_hand)
+            client_Max8.send_message("/body/lefthand/x", left_wrist_x)
+            client_Max8.send_message("/body/lefthand/y", left_wrist_y)
+            
             #Head
             client_MusicVAE.send_message("/body/head/speed", velocity_norm_head)
             #client_MusicVAE.send_message("/body/head/acceleration", acceleration_head)
