@@ -376,63 +376,63 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     if START_SOUND:  
             #MESSAGES TO MAX8
-            client_Max8.send_message("/body/hands/HeightAVG",hands_mean_y)
+            client_Max8.send_message("/body/hands/heightAVG",hands_mean_y)
             #client_Max8.send_message("/body/hands/xaxisAVG",hands_mean_x)
             #Right Hand 
-            client_Max8.send_message("/body/righthand/OpenClose", open_close)
+            client_Max8.send_message("/body/righthand/openClose", open_close)
             client_Max8.send_message("/body/righthand/Speed", velocity_norm_right_hand)
             #client_Max8.send_message("/body/righthand/Acceleration", acceleration_norm_right_hand)
-            client_Max8.send_message("/body/righthand/Expansion", hand_expansion)
-            client_Max8.send_message("/body/righthand/Rotation", right_hand_angle)
-            client_Max8.send_message("/body/righthand/GradualOpening", distance_tot_norm)
+            client_Max8.send_message("/body/righthand/expansion", hand_expansion)
+            client_Max8.send_message("/body/righthand/rotation", right_hand_angle)
+            client_Max8.send_message("/body/righthand/gradualOpening", distance_tot_norm)
             client_Max8.send_message("/body/righthand/camDistance", resize_hand)
             
             #Left Hand
-            #client_Max8.send_message("/body/lefthand/Speed",  velocity_norm_left_hand)
-            #client_Max8.send_message("/body/lefthand/Acceleration",acceleration_norm_left_hand)
-            #client_Max8.send_message("/body/lefthand/Expasion", hand_expansion)
-            #client_Max8.send_message("/body/lefthand/Rotation", right_hand_angle)
+            #client_Max8.send_message("/body/lefthand/speed",  velocity_norm_left_hand)
+            #client_Max8.send_message("/body/lefthand/acceleration",acceleration_norm_left_hand)
+            #client_Max8.send_message("/body/lefthand/expasion", hand_expansion)
+            #client_Max8.send_message("/body/lefthand/rotation", right_hand_angle)
           
             #Head
-            client_Max8.send_message("/body/head/Speed", velocity_norm_head)
-            #client_Max8.send_message("/body/head/Acceleration", acceleration_head)
+            client_Max8.send_message("/body/head/speed", velocity_norm_head)
+            #client_Max8.send_message("/body/head/acceleration", acceleration_head)
             client_Max8.send_message("/body/head/camDistance", resize)
             client_Max8.send_message("/body/head/centerX", center_head_x)
             client_Max8.send_message("/body/head/centerY", center_head_y)
             
             #Body
-            client_Max8.send_message("/body/body/Direction", norm_ang)
-            client_Max8.send_message("/body/body/Velocity", norm_mag)
+            client_Max8.send_message("/body/body/direction", norm_ang)
+            client_Max8.send_message("/body/body/velocity", norm_mag)
             
             
             #MESSAGES TO MUSIC VAE
-            client_MusicVAE.send_message("/body/hands/HeightAVG",hands_mean_y)
+            client_MusicVAE.send_message("/body/hands/heightAVG",hands_mean_y)
             #client_MusicVAE.send_message("/body/hands/xaxisAVG",hands_mean_x)
             #Right Hand 
-            client_MusicVAE.send_message("/body/righthand/OpenClose", open_close)
-            client_MusicVAE.send_message("/body/righthand/Speed", velocity_norm_right_hand)
-            #client_MusicVAE.send_message("/body/righthand/Acceleration", acceleration_norm_right_hand)
-            client_MusicVAE.send_message("/body/righthand/Expansion", hand_expansion)
-            client_MusicVAE.send_message("/body/righthand/Rotation", right_hand_angle)
-            client_MusicVAE.send_message("/body/righthand/GradualOpening", distance_tot_norm)
+            client_MusicVAE.send_message("/body/righthand/openClose", open_close)
+            client_MusicVAE.send_message("/body/righthand/speed", velocity_norm_right_hand)
+            #client_MusicVAE.send_message("/body/righthand/acceleration", acceleration_norm_right_hand)
+            client_MusicVAE.send_message("/body/righthand/expansion", hand_expansion)
+            client_MusicVAE.send_message("/body/righthand/rotation", right_hand_angle)
+            client_MusicVAE.send_message("/body/righthand/gradualOpening", distance_tot_norm)
             client_MusicVAE.send_message("/body/righthand/camDistance", resize_hand)
             
             #Left Hand
-            #client_MusicVAE.send_message("/body/lefthand/Speed",  velocity_norm_left_hand)
-            #client_MusicVAE.send_message("/body/lefthand/Acceleration",acceleration_norm_left_hand)
-            #client_MusicVAE.send_message("/body/lefthand/Expasion", hand_expansion)
-            #client_MusicVAE.send_message("/body/lefthand/Rotation", right_hand_angle)
+            #client_MusicVAE.send_message("/body/lefthand/speed",  velocity_norm_left_hand)
+            #client_MusicVAE.send_message("/body/lefthand/acceleration",acceleration_norm_left_hand)
+            #client_MusicVAE.send_message("/body/lefthand/expasion", hand_expansion)
+            #client_MusicVAE.send_message("/body/lefthand/rotation", right_hand_angle)
           
             #Head
-            client_MusicVAE.send_message("/body/head/Speed", velocity_norm_head)
-            #client_MusicVAE.send_message("/body/head/Acceleration", acceleration_head)
+            client_MusicVAE.send_message("/body/head/speed", velocity_norm_head)
+            #client_MusicVAE.send_message("/body/head/acceleration", acceleration_head)
             client_MusicVAE.send_message("/body/head/camDistance", resize)
             client_MusicVAE.send_message("/body/head/centerX", center_head_x)
             client_MusicVAE.send_message("/body/head/centerY", center_head_y)
             
             #Body
-            client_MusicVAE.send_message("/body/body/Direction", norm_ang)
-            client_MusicVAE.send_message("/body/body/Velocity", norm_mag)
+            client_MusicVAE.send_message("/body/body/direction", norm_ang)
+            client_MusicVAE.send_message("/body/body/velocity", norm_mag)
             
             
     # Draw landmark annotation on the image.
