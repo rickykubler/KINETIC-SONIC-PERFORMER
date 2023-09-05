@@ -1,0 +1,3 @@
+from beatles_chords_markov_chain import chords_markov_chain
+number_of_chords = 6
+chords_for_your_next_song = chords_markov_chain.sample(number_of_chords)
