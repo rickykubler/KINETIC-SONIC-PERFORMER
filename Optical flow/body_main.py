@@ -97,7 +97,8 @@ previous_left_hand_v = 0.0
 previous_head_v = 0.0
 
 #BUFFER
-buffer=np.zeros(10)
+bufferMag=np.zeros(10)
+bufferFrameTime=np.zeros(10)
 
 # FOR EVERY FRAME
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
@@ -131,9 +132,9 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     norm_mag=np.average(magnitude,weights = angle)/10
     
     # BUFFER
-    buffer=buffer[:-1]
-    buffer=np.append(norm_mag, buffer)
-    print(buffer)
+    bufferMag=buffer[:-1]
+    bufferMag=np.append(norm_mag, bufferMag)
+    #print(bufferMag)
     
     # CLIPPING ANGLE AND VELOCITY
     if norm_ang>1:
@@ -265,6 +266,10 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     end = time.time()
     frame_time=end-start
     
+    bufferFrameTime=bufferFrameTime[:-1]
+    bufferFrameTime=np.append(frame_time, bufferFrameTime)
+    print(bufferFrameTime)
+
     # 9) CLIPPING RIGHT HAND SPEED & ACCELERATION
     velocity_norm_right_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
     if velocity_norm_right_hand>1:
