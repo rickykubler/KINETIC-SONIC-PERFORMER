@@ -132,7 +132,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     norm_mag=np.average(magnitude,weights = angle)/10
     
     # BUFFER
-    bufferMag=buffer[:-1]
+    bufferMag=bufferMag[:-1]
     bufferMag=np.append(norm_mag, bufferMag)
     #print(bufferMag)
     
@@ -268,7 +268,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     bufferFrameTime=bufferFrameTime[:-1]
     bufferFrameTime=np.append(frame_time, bufferFrameTime)
-    print(bufferFrameTime)
+    #print(bufferFrameTime)
 
     # 9) CLIPPING RIGHT HAND SPEED & ACCELERATION
     velocity_norm_right_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
