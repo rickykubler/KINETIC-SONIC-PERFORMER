@@ -99,6 +99,7 @@ previous_head_v = 0.0
 #BUFFER
 bufferMag=np.zeros(10)
 bufferFrameTime=np.zeros(10)
+counter=0  #COUNTS ITERATIONS OF THE WHILE CYCLE TO SEND A VECTOR OF n VALUES TO MAX8 (or its mean value) 
 
 # FOR EVERY FRAME
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
@@ -115,6 +116,9 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     imageBackup = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = holistic.process(image)
     
+    if counter==10:    #EVERY 10 ITERATIONS, AT 11th RESET 
+      counter=0
+      
     # start time to calculate time interval between two frames
     start = time.time()
     
@@ -269,6 +273,13 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     bufferFrameTime=bufferFrameTime[:-1]
     bufferFrameTime=np.append(frame_time, bufferFrameTime)
     #print(bufferFrameTime)
+    
+    if counter==9:
+      sumTimeFrames=np.sum(bufferFrameTime)
+      meanMagnitude=np.mean(bufferMag)
+      print("Summed time frames:", sumTimeFrames, "Mean magnitude:", meanMagnitude)
+      #print(sumTimeFrames,meanMagnitude)
+    counter+=1
 
     # 9) CLIPPING RIGHT HAND SPEED & ACCELERATION
     velocity_norm_right_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
@@ -393,6 +404,11 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             client_Max8.send_message("/body/bodyVelocity", norm_mag)
             
             client_MusicVAE.send_message("/filter1", [1., 2.])
+            
+            #Values extracted from buffers:
+            #client_Max8.send_message("/buffers/sumTimeFrames", resize_hand)  FARLO OGNI 10?
+            #client_Max8.send_message("/buffers/meanMagnitude", resize_hand)
+            
             '''
             #MESSAGES TO MUSIC VAE
             client_MusicVAE.send_message("/body/hands_HeightAVG",hands_mean_y)
