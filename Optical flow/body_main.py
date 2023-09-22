@@ -147,7 +147,11 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       norm_mag=1
 
     # 3) DEPTH THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
-    head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
+    if not results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE]:
+      head_depth=0
+    else:
+      head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
+      
     right_wrist_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
     
     # IMPORTANT: "RESIZE" PARAMETER WRT DISTANCE, DEPTH NORMALIZATION ("head_depth" is pretty linear --> variation of 1 means variation of 0,6 meters in depth, variation of 2 means variation of 1,20 meters in this way *0.6 converts the number in meters, do not touch /2 (2 maximum distance perceived) gives a normalization of distance, a percentage of how much you are distant)
