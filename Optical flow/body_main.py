@@ -147,8 +147,8 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
       norm_mag=1
 
     # 3) DEPTH THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
-    if not results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE]:
-      head_depth=0
+    if not results.pose_landmarks:
+      continue
     else:
       head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z
       
