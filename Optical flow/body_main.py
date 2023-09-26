@@ -68,7 +68,7 @@ cap = cv2.VideoCapture(0)
 START_SOUND = True
 
 Max8_IP='192.168.1.213'
-Max8_IP_port=7374
+Max8_IP_port=7400
 
 MusicVAE_IP='192.168.1.159'
 MusicVAE_port=7400
@@ -97,8 +97,13 @@ previous_left_hand_v = 0.0
 previous_head_v = 0.0
 
 #BUFFER
-bufferMag=np.zeros(10)
+bufferMag=np.zeros(20)
+bufferExp=np.zeros(20)
+bufferOC=np.zeros(10)
+
 bufferFrameTime=np.zeros(10)
+
+#togliere
 counter=0  #COUNTS ITERATIONS OF THE WHILE CYCLE TO SEND A VECTOR OF n VALUES TO MAX8 (or its mean value) 
 
 # FOR EVERY FRAME
@@ -131,9 +136,10 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     angle=angle * 180 / np.pi / 2
     
     # 1) MEAN NORMALIZED ANGLE, WEIGHTED WITH MAGNITUDE  --> MEAN DIRECTION OF THE WHOLE MOVEMENT IN THE SCREEN (tende a 1 verso l'alto, a 0 verso il basso, 0,5 a dx e sx, la distanza influisce perchè più sei vicino più punti sullo schermo sono presi se fermo o fuori dallo schermo il valore è 0)
-    norm_ang=(np.average(angle,weights = magnitude))/180 
+    norm_ang=(np.average(angle,weights = magnitude))/180  #togliere
     # 2) MEAN NORMALIZED MAGNITUDE, WEIGHTED WITH ANGLE  --> MEAN VELOCITY OF THE WHOLE MOVEMENT IN THE SCREEN (se fermo o fuori dallo schermo il valore è 0)
-    norm_mag=np.average(magnitude,weights = angle)/10
+    #norm_mag=float(np.average(magnitude,weights = angle))
+    norm_mag=float(np.average(magnitude))/8
     
     # BUFFER
     bufferMag=bufferMag[:-1]
@@ -209,15 +215,21 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     distance_pinky=((center_x - pinky_x)**2 + (center_y - pinky_y)**2)**0.5
     
     # TOTAL DISTANCE OF FINGER TIPS FROM PALM CENTER (*resize TO ADAPT THE PARAMETER WRT DISTANCE) (se lontana il resize influisce poco, se vicina il resize influisce di più)
-    distance_tot= (distance_thumb + distance_middle + distance_ring +  distance_pinky)*resize_hand
+    distance_tot= (distance_thumb + distance_middle + distance_ring + distance_pinky)*resize_hand
+    #print(distance_tot)
     
     # THRESHOLD FOR OPEN/CLOSE RESIZED
-    treshold=0.2*resize_hand   # si può modificare 0.2 o al massimo aggiungere indice, con 0.2 e senza indice a me dà i risultati migliori
+    #treshold=0.2*resize_hand   # si può modificare 0.2 o al massimo aggiungere indice, con 0.2 e senza indice a me dà i risultati migliori
     
-    if distance_tot<treshold:
-      open_close = 0 #hand is closed
-    else:
-      open_close = 1 #hand is open
+    #if distance_tot<treshold:
+    #  open_close = 0 #hand is closed
+    #else:
+    #  open_close = 1 #hand is open
+      
+    #bufferOC=bufferOC[:-1]
+    #bufferOC=np.append(open_close, bufferOC)
+    #meanOC=np.mean(bufferOC)
+    #print(open_close)    CONTROLLA
       
     # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
     distance_tot_norm= (distance_tot)/0.25
@@ -243,18 +255,28 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     # HANDS ANGULATION: HANDS HEIGHT + HANDS EXPANSION
     # 7) HANDS HEIGHT --> MIDDLE POINT BETWEEN WRISTS, FOR NOW DOES NOT DEPEND ON DISTANCE 
-    hands_mean_x= (1-((left_wrist_x+right_wrist_x)/2)*resize)   
+    hands_mean_x= (1-((left_wrist_x+right_wrist_x)/2)*resize)
     hands_mean_y= (1-((left_wrist_y+right_wrist_y)/2)*resize)   
     if hands_mean_y>1:
         hands_mean_y=1 
+    if hands_mean_y<0:
+        hands_mean_y=0 
+        
     if hands_mean_x>1:
         hands_mean_x=1 
+    if hands_mean_x<0:
+        hands_mean_x=0 
     
     # 8) HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS (*resize TO ADAPT THE PARAMETER WRT DISTANCE)
-    hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_x-left_wrist_y)**2)**0.5))*resize
+    hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_y-left_wrist_y)**2)**0.5))*resize
     # hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
-    if hand_expansion>1:
+    
+    if hand_expansion>1: 
         hand_expansion=0.5
+    
+    bufferExp=bufferExp[:-1]
+    bufferExp=np.append(hand_expansion, bufferExp)
+    meanExp=np.mean(bufferExp)
         
     # TO CALCULATE HEAD AND HAND SPEED
     frame_distance_hand=((((right_wrist_x-previous_right_hand_x)**2 + (right_wrist_y-previous_right_hand_y)**2)**0.5))
@@ -276,12 +298,14 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     bufferFrameTime=bufferFrameTime[:-1]
     bufferFrameTime=np.append(frame_time, bufferFrameTime)
     #print(bufferFrameTime)
-    
-    if counter==9:
-      sumTimeFrames=np.sum(bufferFrameTime)
-      meanMagnitude=np.mean(bufferMag)
-      print("Summed time frames:", sumTimeFrames, "Mean magnitude:", meanMagnitude)
-      #print(sumTimeFrames,meanMagnitude)
+   
+    meanMagnitude=np.mean(bufferMag)
+     
+    #if counter==9:
+    #  sumTimeFrames=np.sum(bufferFrameTime)
+    #  meanMagnitude=np.mean(bufferMag)
+    #  print("Summed time frames:", sumTimeFrames, "Mean magnitude:", meanMagnitude)
+    #  #print(sumTimeFrames,meanMagnitude)
     counter+=1
 
     # 9) CLIPPING RIGHT HAND SPEED & ACCELERATION
@@ -378,21 +402,22 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     if START_SOUND:  
             #MESSAGES TO MAX8
-            client_Max8.send_message("/body/hands_HeightAVG",hands_mean_y)
+            client_Max8.send_message("/body/hands_y",hands_mean_y)  #<-------------
+            client_Max8.send_message("/body/hands_x",hands_mean_x)  #<-------------
             #client_Max8.send_message("/body/hands_xaxisAVG",hands_mean_x)
             #Right Hand 
-            client_Max8.send_message("/body/RH_OpenClose", open_close)
+            client_Max8.send_message("/body/open_close", distance_tot)   #<-------------
             client_Max8.send_message("/body/RH_Speed", velocity_norm_right_hand)
             #client_Max8.send_message("/body/RH_Acceleration", acceleration_norm_right_hand)
-            client_Max8.send_message("/body/RH_Expansion", hand_expansion)
-            client_Max8.send_message("/body/RH_Rotation", right_hand_angle)
-            client_Max8.send_message("/body/RH_GradualOpening", distance_tot_norm)
+            client_Max8.send_message("/body/expansion", bufferExp)   #<-------------
+            client_Max8.send_message("/body/RH_rotation", right_hand_angle)   #<-------------
+            client_Max8.send_message("/body/RH_open", distance_tot_norm)
             client_Max8.send_message("/body/RH_camDistance", resize_hand)
             
             #Left Hand
             #client_Max8.send_message("/body/LH_Speed",  velocity_norm_left_hand)
             #client_Max8.send_message("/body/LH_Acceleration",acceleration_norm_left_hand)
-            #client_Max8.send_message("/body/LH_Expasion", hand_expansion)
+            #client_Max8.send_message("/body/LH_Expasion", hand_expansion)     #?????
             #client_Max8.send_message("/body/LH_Rotation", right_hand_angle)
           
             #Head
@@ -403,14 +428,14 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             client_Max8.send_message("/body/H_centerY", center_head_y)
             
             #Body
-            client_Max8.send_message("/body/bodyDirection", norm_ang)
+            client_Max8.send_message("/body/direction", norm_ang)
             client_Max8.send_message("/body/bodyVelocity", norm_mag)
             
             client_MusicVAE.send_message("/filter1", [1., 2.])
             
             #Values extracted from buffers:
-            #client_Max8.send_message("/buffers/sumTimeFrames", resize_hand)  FARLO OGNI 10?
-            #client_Max8.send_message("/buffers/meanMagnitude", resize_hand)
+            #client_Max8.send_message("/body/flow/sumTimeFrames", sumTimeFrames)  #FARLO OGNI 10?
+            client_Max8.send_message("/body/flow", meanMagnitude)   #<-------------
             
             '''
             #MESSAGES TO MUSIC VAE
