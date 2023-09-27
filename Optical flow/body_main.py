@@ -89,7 +89,7 @@ bufferMag=np.zeros(20)
 bufferExp=np.zeros(200)
 bufferX=np.zeros(300)
 bufferY=np.zeros(300)
-bufferOC=np.zeros(200) 
+bufferOC=np.zeros(20) 
 
 # FOR EVERY FRAME
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
@@ -237,14 +237,15 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     maxOC=np.max(bufferOC)
     minOC=np.min(bufferOC)
     valueOC=(distance_tot-minOC)/(maxOC-minOC)
+    #print(valueOC)
     
     # 3) OPEN/CLOSE
     if valueOC>0.4:
       open_close=1
-      print("Open")
+      #print("Open")
     else: 
       open_close=0
-      print("Closed")
+      #print("Closed")
       
     # 4) ROTATION OF THE RIGHT HAND
     coord_x_right = right_middle_x - right_wrist_x
