@@ -85,12 +85,14 @@ success, prev = cap.read()
 prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
 
 #BUFFERS
-bufferMag=np.zeros(20)
-bufferExp=np.zeros(200)
-bufferX=np.zeros(300)
+bufferMag=np.zeros(50)
+bufferExp=np.zeros(300)
+bufferX=np.zeros(300)  
 bufferY=np.zeros(300)
 bufferOC=np.zeros(20) 
 
+epsilon=10^(-3)   #vd
+ 
 # FOR EVERY FRAME
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
   while cap.isOpened():
@@ -119,14 +121,19 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     # 1) MEAN NORMALIZED MAGNITUDE: MEAN VELOCITY OF THE WHOLE MOVEMENT IN THE SCREEN 
     #norm_mag=float(np.average(magnitude,weights = angle))  
-    norm_mag=float(np.average(magnitude))/8
+    avg_mag=float(np.average(magnitude))
     # CLIPPING OPTICAL FLOW VELOCITY
-    if norm_mag>1:
-      norm_mag=1 
+    #if norm_mag>1:
+    #  norm_mag=1 
     # UPDATE BUFFER FOR OPTICAL FLOW VELOCITY TO SMOOTH VALUES
     bufferMag=bufferMag[:-1]
-    bufferMag=np.append(norm_mag, bufferMag)
-    meanMagnitude=np.mean(bufferMag)
+    bufferMag=np.append(avg_mag, bufferMag)
+    maxMag=np.max(bufferMag)
+    minMag=np.min(bufferMag)
+    meanMagnitude=np.mean(bufferMag[:10])
+    valueMag=(meanMagnitude-minMag)/(maxMag-minMag+epsilon)
+    #print(valueMag)
+
 
     # DEPTH OF THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
     if not results.pose_landmarks:
@@ -236,7 +243,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     bufferOC=np.append(distance_tot, bufferOC)
     maxOC=np.max(bufferOC)
     minOC=np.min(bufferOC)
-    valueOC=(distance_tot-minOC)/(maxOC-minOC)
+    valueOC=(distance_tot-minOC)/(maxOC-minOC+epsilon)
     #print(valueOC)
     
     # 3) OPEN/CLOSE
@@ -251,54 +258,63 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     coord_x_right = right_middle_x - right_wrist_x
     coord_y_right = right_middle_y - right_wrist_y
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
+    #if right_hand_angle==0:   OPPURE 1-abs(...)
+    #  right_hand_angle=1
     #print(right_hand_angle)
     
     # 5) ROTATION OF THE LEFT HAND
     coord_x_left = left_middle_x - left_wrist_x
     coord_y_left = left_middle_y - left_wrist_y
     left_hand_angle = abs(math.atan2(coord_x_left, coord_y_left))/math.pi
+    #if left_hand_angle==0:
+    #  left_hand_angle=1
     #print(left_hand_angle)
     
     # 6) HANDS HEIGHT --> MIDDLE POINT BETWEEN WRISTS
-    hands_mean_y= (1-(left_wrist_y+right_wrist_y)/2)   #*resize
-    if hands_mean_y>1:
-        hands_mean_y=1 
-    if hands_mean_y<0:
-        hands_mean_y=0 
+    hands_mean_y= ((left_wrist_y+right_wrist_y)/2)   #*resize
+    #if not results.left_hand_landmarks:....
+    #  hands_mean_y=0.5
+    #if hands_mean_y>1:
+    #  hands_mean_y=1 
+    #if hands_mean_y<0:
+    #  hands_mean_y=0 
     #print(hands_mean_y)
     bufferY=bufferY[:-1]
     bufferY=np.append(hands_mean_y, bufferY)
     maxY=np.max(bufferY)
     minY=np.min(bufferY)
-    valueY=(hands_mean_y-minY)/(maxY-minY)
+    meanY=np.mean(bufferY[:15])
+    valueY=1-((meanY-minY)/(maxY-minY+epsilon))   #vd. se 1-
     #print(valueY)
     
     # 7) HANDS x
-    hands_mean_x= (1-(left_wrist_x+right_wrist_x)/2)  #*resize
-    if hands_mean_x>1:
-        hands_mean_x=1 
-    if hands_mean_x<0:
-        hands_mean_x=0 
+    hands_mean_x= ((left_wrist_x+right_wrist_x)/2)  #*resize
+    #if hands_mean_x>1:
+    #    hands_mean_x=1 
+    #if hands_mean_x<0:
+    #    hands_mean_x=0 
     #print(hands_mean_x)
     bufferX=bufferX[:-1]
     bufferX=np.append(hands_mean_x, bufferX)
     maxX=np.max(bufferX)
     minX=np.min(bufferX)
-    valueX=(hands_mean_x-minX)/(maxX-minX)
+    meanX=np.mean(bufferX[:15])
+    valueX=1-((meanX-minX)/(maxX-minX+epsilon))   #invalid value encountered in double_scalars
     #print(valueX)
     
     # 8) HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS 
     hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_y-left_wrist_y)**2)**0.5))    #*resize
     # hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
-    if hand_expansion>1: 
-        hand_expansion=1
+    #if hand_expansion>1: 
+    #    hand_expansion=1
     
     bufferExp=bufferExp[:-1]
     bufferExp=np.append(hand_expansion, bufferExp)
     minExp=np.min(bufferExp)
     maxExp=np.max(bufferExp)
-    valueExp=(hand_expansion-minExp)/(maxExp-minExp)
-    #print(valueExp)
+    meanExp=np.mean(bufferExp[:15])
+    valueExp=(meanExp-minExp)/(maxExp-minExp+epsilon)
+    print(valueExp)
         
     prevgray = gray
     
@@ -346,7 +362,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     if START_SOUND:  
             #MESSAGES TO MAX8 
-            client_Max8.send_message("/body/flow", meanMagnitude)             #1
+            #client_Max8.send_message("/body/flow", meanMagnitude)             #1
             client_Max8.send_message("/body/opening", valueOC)                #2 
             client_Max8.send_message("/body/open_close", open_close)          #3
             client_Max8.send_message("/body/RH_rotation", right_hand_angle)   #4   
