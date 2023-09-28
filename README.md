@@ -11,7 +11,7 @@ Dowload this repository and all the specific softwares:
 * [TouchDesigner](https://derivative.ca/UserGuide/Install_TouchDesigner)
   
 ## How to use
-In order to use the software it is suggested to use at least two computers so to have more memory to use.
+Unless you have a superhero computer, in order to use the software it is suggested to use at least two computers so to have more memory to use.
 Open all the files in their dedicated programs and run them contemporarly since it is a real time project:
 * *PincoPallino* file with Visual Studio Code
 * *Ciaone* file with Max8
