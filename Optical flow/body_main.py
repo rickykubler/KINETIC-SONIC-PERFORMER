@@ -84,27 +84,12 @@ success, prev = cap.read()
 # CONVERTS FRAME TO GRAYSCALE BECAUSE WE ONLY NEED THE LUMINANCE CHANNEL FOR DETECTING EDGES, LESS COMPUTATIONALLY EXPENSIVE
 prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
 
-# SETTING DEFAULT VALUES FOR HANDS AND HEAD 
-previous_right_hand_x=0.5
-previous_right_hand_y=0.5
-previous_head_x=0.5
-previous_head_y=0.5
-previous_left_hand_x=0.5
-previous_left_hand_y=0.5
-
-previous_right_hand_v = 0.0
-previous_left_hand_v = 0.0
-previous_head_v = 0.0
-
-#BUFFER
+#BUFFERS
 bufferMag=np.zeros(20)
-bufferExp=np.zeros(20)
-bufferOC=np.zeros(10)
-
-bufferFrameTime=np.zeros(10)
-
-#togliere
-counter=0  #COUNTS ITERATIONS OF THE WHILE CYCLE TO SEND A VECTOR OF n VALUES TO MAX8 (or its mean value) 
+bufferExp=np.zeros(200)
+bufferX=np.zeros(300)
+bufferY=np.zeros(300)
+bufferOC=np.zeros(20) 
 
 # FOR EVERY FRAME
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
@@ -120,9 +105,6 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     imageBackup = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
     results = holistic.process(image)
-    
-    if counter==10:    #EVERY 10 ITERATIONS, AT 11th RESET 
-      counter=0
       
     # start time to calculate time interval between two frames
     start = time.time()
@@ -135,232 +117,194 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     magnitude, angle = cv2.cartToPolar(flow[..., 0], flow[..., 1])
     angle=angle * 180 / np.pi / 2
     
-    # 1) MEAN NORMALIZED ANGLE, WEIGHTED WITH MAGNITUDE  --> MEAN DIRECTION OF THE WHOLE MOVEMENT IN THE SCREEN (tende a 1 verso l'alto, a 0 verso il basso, 0,5 a dx e sx, la distanza influisce perchè più sei vicino più punti sullo schermo sono presi se fermo o fuori dallo schermo il valore è 0)
-    norm_ang=(np.average(angle,weights = magnitude))/180  #togliere
-    # 2) MEAN NORMALIZED MAGNITUDE, WEIGHTED WITH ANGLE  --> MEAN VELOCITY OF THE WHOLE MOVEMENT IN THE SCREEN (se fermo o fuori dallo schermo il valore è 0)
-    #norm_mag=float(np.average(magnitude,weights = angle))
+    # 1) MEAN NORMALIZED MAGNITUDE: MEAN VELOCITY OF THE WHOLE MOVEMENT IN THE SCREEN 
+    #norm_mag=float(np.average(magnitude,weights = angle))  
     norm_mag=float(np.average(magnitude))/8
-    
-    # BUFFER
+    # CLIPPING OPTICAL FLOW VELOCITY
+    if norm_mag>1:
+      norm_mag=1 
+    # UPDATE BUFFER FOR OPTICAL FLOW VELOCITY TO SMOOTH VALUES
     bufferMag=bufferMag[:-1]
     bufferMag=np.append(norm_mag, bufferMag)
-    #print(bufferMag)
-    
-    # CLIPPING ANGLE AND VELOCITY
-    if norm_ang>1:
-      norm_ang=1 
-    if norm_mag>1:
-      norm_mag=1
+    meanMagnitude=np.mean(bufferMag)
 
-    # 3) DEPTH THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
+    # DEPTH OF THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
     if not results.pose_landmarks:
       continue
     
-    head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z 
-    right_wrist_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
-    
+    #head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z 
+    #right_wrist_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
     # IMPORTANT: "RESIZE" PARAMETER WRT DISTANCE, DEPTH NORMALIZATION ("head_depth" is pretty linear --> variation of 1 means variation of 0,6 meters in depth, variation of 2 means variation of 1,20 meters in this way *0.6 converts the number in meters, do not touch /2 (2 maximum distance perceived) gives a normalization of distance, a percentage of how much you are distant)
-    resize=((3-abs(head_depth))*(0.6))/2
+    # resize=((3-abs(head_depth))*(0.6))/2
     # /1.7 (1.7 maximum distance perceived) gives a normalization of distance, a percentage of how much you are distant
-    resize_hand=((3-abs(right_wrist_depth))*(0.6))/(1.7)
+    # resize_hand=((3-abs(right_wrist_depth))*(0.6))/(1.7)
     
-    # 4) OPEN/CLOSE RIGHT HAND WITH DISTANCE OF FINGERS'TIPS FROM PALM CENTER
+    # RIGHT HAND LANDMARKS
     if not results.right_hand_landmarks:
-      thumb_x=0
-      thumb_y=0
+      right_thumb_x=0
+      right_thumb_y=0
    
-      index_x=0
-      index_y=0
+      right_index_x=0
+      right_index_y=0
     
-      middle_x=0
-      middle_y=0
+      right_middle_x=0
+      right_middle_y=0
     
-      ring_x=0
-      ring_y=0
+      right_ring_x=0
+      right_ring_y=0
   
-      pinky_x=0
-      pinky_y=0
+      right_pinky_x=0
+      right_pinky_y=0
     
-      wrist_x=0
-      wrist_y=0
+      right_wrist_x=0
+      right_wrist_y=0
     
     if results.right_hand_landmarks:
-      thumb_x=results.right_hand_landmarks.landmark[4].x
-      thumb_y=results.right_hand_landmarks.landmark[4].y
+      right_thumb_x=results.right_hand_landmarks.landmark[4].x
+      right_thumb_y=results.right_hand_landmarks.landmark[4].y
    
-      index_x=results.right_hand_landmarks.landmark[8].x
-      index_y=results.right_hand_landmarks.landmark[8].y
+      right_index_x=results.right_hand_landmarks.landmark[8].x
+      right_index_y=results.right_hand_landmarks.landmark[8].y
     
-      middle_x=results.right_hand_landmarks.landmark[12].x
-      middle_y=results.right_hand_landmarks.landmark[12].y
+      right_middle_x=results.right_hand_landmarks.landmark[12].x
+      right_middle_y=results.right_hand_landmarks.landmark[12].y
     
-      ring_x=results.right_hand_landmarks.landmark[16].x
-      ring_y=results.right_hand_landmarks.landmark[16].y
+      right_ring_x=results.right_hand_landmarks.landmark[16].x
+      right_ring_y=results.right_hand_landmarks.landmark[16].y
   
-      pinky_x=results.right_hand_landmarks.landmark[20].x
-      pinky_y=results.right_hand_landmarks.landmark[20].y
+      right_pinky_x=results.right_hand_landmarks.landmark[20].x
+      right_pinky_y=results.right_hand_landmarks.landmark[20].y
     
-      wrist_x=results.right_hand_landmarks.landmark[0].x
-      wrist_y=results.right_hand_landmarks.landmark[0].y
+      right_wrist_x=results.right_hand_landmarks.landmark[0].x
+      right_wrist_y=results.right_hand_landmarks.landmark[0].y
       
-    # CENTER RIGHT HAND 
-    center_x=(thumb_x+index_x+middle_x+ring_x+pinky_x)/5
-    center_y=(thumb_x+index_y+middle_y+ring_y+pinky_y)/5
+    # RIGHT HAND CENTER 
+    center_x=(right_thumb_x+right_index_x+right_middle_x+right_ring_x+right_pinky_x)/5
+    center_y=(right_thumb_y+right_index_y+right_middle_y+right_ring_y+right_pinky_y)/5
     
     # DISTANCE BETWEEN EVERY FINGER AND CENTER OF THE RIGHT PALM
-    distance_thumb=((center_x - thumb_x)**2 + (center_y - thumb_y)**2)**0.5
-    # distance_index=((center_x - index_x)**2 + (center_y - index_y)**2)**0.5  SE TI ALLONTANI MEDIAPIPE DA' PROBLEMI SOPRATTUTTO CON INDICE
-    distance_middle=((center_x - middle_x)**2 + (center_y - middle_y)**2)**0.5
-    distance_ring=((center_x - ring_x)**2 + (center_y - ring_y)**2)**0.5
-    distance_pinky=((center_x - pinky_x)**2 + (center_y - pinky_y)**2)**0.5
+    distance_thumb=((center_x - right_thumb_x)**2 + (center_y - right_thumb_y)**2)**0.5
+    # distance_index=((center_x - index_x)**2 + (center_y - index_y)**2)**0.5  
+    distance_middle=((center_x - right_middle_x)**2 + (center_y - right_middle_y)**2)**0.5
+    distance_ring=((center_x - right_ring_x)**2 + (center_y - right_ring_y)**2)**0.5
+    distance_pinky=((center_x - right_pinky_x)**2 + (center_y - right_pinky_y)**2)**0.5
     
-    # TOTAL DISTANCE OF FINGER TIPS FROM PALM CENTER (*resize TO ADAPT THE PARAMETER WRT DISTANCE) (se lontana il resize influisce poco, se vicina il resize influisce di più)
-    distance_tot= (distance_thumb + distance_middle + distance_ring + distance_pinky)*resize_hand
-    #print(distance_tot)
+    # TOTAL DISTANCE OF FINGER TIPS FROM PALM CENTER  
+    distance_tot= (distance_thumb + distance_middle + distance_ring + distance_pinky)
     
-    # THRESHOLD FOR OPEN/CLOSE RESIZED
-    #treshold=0.2*resize_hand   # si può modificare 0.2 o al massimo aggiungere indice, con 0.2 e senza indice a me dà i risultati migliori
+    # LEFT HAND LANDMARKS
+    if not results.left_hand_landmarks:
+      left_thumb_x=0
+      left_thumb_y=0
+   
+      left_index_x=0
+      left_index_y=0
     
-    #if distance_tot<treshold:
-    #  open_close = 0 #hand is closed
-    #else:
-    #  open_close = 1 #hand is open
+      left_middle_x=0
+      left_middle_y=0
+    
+      left_ring_x=0
+      left_ring_y=0
+  
+      left_pinky_x=0
+      left_pinky_y=0
+    
+      left_wrist_x=0
+      left_wrist_y=0
+    
+    if results.left_hand_landmarks:
+      left_thumb_x=results.left_hand_landmarks.landmark[4].x
+      left_thumb_y=results.left_hand_landmarks.landmark[4].y
+   
+      left_index_x=results.left_hand_landmarks.landmark[8].x
+      left_index_y=results.left_hand_landmarks.landmark[8].y
+    
+      left_middle_x=results.left_hand_landmarks.landmark[12].x
+      left_middle_y=results.left_hand_landmarks.landmark[12].y
+    
+      left_ring_x=results.left_hand_landmarks.landmark[16].x
+      left_ring_y=results.left_hand_landmarks.landmark[16].y
+  
+      left_pinky_x=results.left_hand_landmarks.landmark[20].x
+      left_pinky_y=results.left_hand_landmarks.landmark[20].y
+    
+      left_wrist_x=results.left_hand_landmarks.landmark[0].x
+      left_wrist_y=results.left_hand_landmarks.landmark[0].y
+    
+    # 2) GRADUAL OPENING OF THE HAND
+    bufferOC=bufferOC[:-1]
+    bufferOC=np.append(distance_tot, bufferOC)
+    maxOC=np.max(bufferOC)
+    minOC=np.min(bufferOC)
+    valueOC=(distance_tot-minOC)/(maxOC-minOC)
+    #print(valueOC)
+    
+    # 3) OPEN/CLOSE
+    if valueOC>0.4:
+      open_close=1
+      #print("Open")
+    else: 
+      open_close=0
+      #print("Closed")
       
-    #bufferOC=bufferOC[:-1]
-    #bufferOC=np.append(open_close, bufferOC)
-    #meanOC=np.mean(bufferOC)
-    #print(open_close)    CONTROLLA
-      
-    # 5) GRADUAL OPENING THE RIGHT HAND (*resize ALREADY DONE IN distance_tot) (O.25 IS THE NORMALIZATION), per adesso dà valori - considerando la distanza - tra 0.3 e 0.85
-    distance_tot_norm= (distance_tot)/0.25
-    if distance_tot_norm>1:
-        distance_tot_norm=1
-
-    # 6) ROTATION OF THE RIGHT HAND
-    coord_x_right = middle_x - wrist_x
-    coord_y_right = middle_y - wrist_y
+    # 4) ROTATION OF THE RIGHT HAND
+    coord_x_right = right_middle_x - right_wrist_x
+    coord_y_right = right_middle_y - right_wrist_y
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
+    #print(right_hand_angle)
     
-    # RIGHT HAND WRIST  (fare solo un wrist?)
-    right_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].x
-    right_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].y
+    # 5) ROTATION OF THE LEFT HAND
+    coord_x_left = left_middle_x - left_wrist_x
+    coord_y_left = left_middle_y - left_wrist_y
+    left_hand_angle = abs(math.atan2(coord_x_left, coord_y_left))/math.pi
+    #print(left_hand_angle)
     
-    # LEFT HAND WRIST
-    left_wrist_x= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].x
-    left_wrist_y= results.pose_landmarks.landmark[mp_pose.PoseLandmark.LEFT_WRIST].y
-    
-    # CENTER HEAD
-    center_head_x= 1-results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].x
-    center_head_y= 1-results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].y
-    
-    # HANDS ANGULATION: HANDS HEIGHT + HANDS EXPANSION
-    # 7) HANDS HEIGHT --> MIDDLE POINT BETWEEN WRISTS, FOR NOW DOES NOT DEPEND ON DISTANCE 
-    hands_mean_x= (1-((left_wrist_x+right_wrist_x)/2)*resize)
-    hands_mean_y= (1-((left_wrist_y+right_wrist_y)/2)*resize)   
+    # 6) HANDS HEIGHT --> MIDDLE POINT BETWEEN WRISTS
+    hands_mean_y= (1-(left_wrist_y+right_wrist_y)/2)   #*resize
     if hands_mean_y>1:
         hands_mean_y=1 
     if hands_mean_y<0:
         hands_mean_y=0 
-        
+    #print(hands_mean_y)
+    bufferY=bufferY[:-1]
+    bufferY=np.append(hands_mean_y, bufferY)
+    maxY=np.max(bufferY)
+    minY=np.min(bufferY)
+    valueY=(hands_mean_y-minY)/(maxY-minY)
+    #print(valueY)
+    
+    # 7) HANDS x
+    hands_mean_x= (1-(left_wrist_x+right_wrist_x)/2)  #*resize
     if hands_mean_x>1:
         hands_mean_x=1 
     if hands_mean_x<0:
         hands_mean_x=0 
+    #print(hands_mean_x)
+    bufferX=bufferX[:-1]
+    bufferX=np.append(hands_mean_x, bufferX)
+    maxX=np.max(bufferX)
+    minX=np.min(bufferX)
+    valueX=(hands_mean_x-minX)/(maxX-minX)
+    #print(valueX)
     
-    # 8) HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS (*resize TO ADAPT THE PARAMETER WRT DISTANCE)
-    hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_y-left_wrist_y)**2)**0.5))*resize
+    # 8) HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS 
+    hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_y-left_wrist_y)**2)**0.5))    #*resize
     # hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
-    
     if hand_expansion>1: 
-        hand_expansion=0.5
+        hand_expansion=1
     
     bufferExp=bufferExp[:-1]
     bufferExp=np.append(hand_expansion, bufferExp)
-    meanExp=np.mean(bufferExp)
+    minExp=np.min(bufferExp)
+    maxExp=np.max(bufferExp)
+    valueExp=(hand_expansion-minExp)/(maxExp-minExp)
+    #print(valueExp)
         
-    # TO CALCULATE HEAD AND HAND SPEED
-    frame_distance_hand=((((right_wrist_x-previous_right_hand_x)**2 + (right_wrist_y-previous_right_hand_y)**2)**0.5))
-    frame_distance_left_hand=((((left_wrist_x-previous_left_hand_x)**2 + (left_wrist_y-previous_left_hand_y)**2)**0.5))
-    frame_distance_head=((((center_head_x-previous_head_x)**2 + (center_head_y-previous_head_y)**2)**0.5))
-    
-     # UPDATES HEAD PREVIOUS FRAME 
-    previous_head_x= center_head_x
-    previous_head_y= center_head_y
-     # UPDATES HAND PREVIOUS FRAME
-    previous_right_hand_x= right_wrist_x
-    previous_right_hand_y= right_wrist_y
     prevgray = gray
     
      # End time
     end = time.time()
     frame_time=end-start
-    
-    bufferFrameTime=bufferFrameTime[:-1]
-    bufferFrameTime=np.append(frame_time, bufferFrameTime)
-    #print(bufferFrameTime)
-   
-    meanMagnitude=np.mean(bufferMag)
-     
-    #if counter==9:
-    #  sumTimeFrames=np.sum(bufferFrameTime)
-    #  meanMagnitude=np.mean(bufferMag)
-    #  print("Summed time frames:", sumTimeFrames, "Mean magnitude:", meanMagnitude)
-    #  #print(sumTimeFrames,meanMagnitude)
-    counter+=1
-
-    # 9) CLIPPING RIGHT HAND SPEED & ACCELERATION
-    velocity_norm_right_hand=((frame_distance_hand/frame_time)/2)   #*resize_hand???
-    if velocity_norm_right_hand>1:
-       velocity_norm_right_hand=1
-    
-    deltaV_rightHand = ((velocity_norm_right_hand - previous_right_hand_v))
-    previous_right_hand_v = velocity_norm_right_hand
-    
-    acceleration_norm_right_hand =  (deltaV_rightHand/frame_time)/10
-    if acceleration_norm_right_hand>1:
-       acceleration_norm_right_hand=1
-
-    # 10) CLIPPING HEAD SPEED & ACCELERATION
-    velocity_norm_head=((frame_distance_head/frame_time)/2)    #*resize???
-    if velocity_norm_head>1:
-        velocity_norm_head=1
-    
-    deltaV_head = ((velocity_norm_head - previous_head_v))
-    previous_head_v = velocity_norm_head
-    
-    acceleration_head =  (deltaV_head/frame_time)/10
-    if acceleration_head>1:
-       acceleration_head=1
-
-    # 11) CLIPPING LEFT HAND SPEED & ACCELERATION
-    velocity_norm_left_hand=((frame_distance_left_hand/frame_time)/2)    #*resize???
-    if velocity_norm_left_hand>1:
-        velocity_norm_left_hand=1
-
-    deltaV_leftHand = ((velocity_norm_left_hand - previous_left_hand_v))
-    previous_left_hand_v = velocity_norm_left_hand
-    
-    acceleration_norm_left_hand = (deltaV_leftHand/frame_time)/10
-    if acceleration_norm_left_hand>1:
-       acceleration_norm_left_hand=1
-    
-        
-    # PRINT DESIRED PARAMETER TO SEE VALUES
-    #print(f"\rRight hand's speed: {velocity_norm_right_hand} ")
-    #print(f"\rRight hand's acceleration: {acceleration_norm_right_hand} ")
-    #print(f"\rLeft hand's acceleration: {acceleration_norm_left_hand} ")
-    #print(f"\rHead's acceleration: {acceleration_head} ")
-    #print(f"\rHead's speed: {velocity_norm_head} ", end='', flush=True)
-    #print(f"\rRight hand is open/close: {open_close} ", end='', flush=True)
-    #print(f"\rHands' expansion: {hand_expansion} ")
-    #print(f"\rAverage hands' height: {hands_mean_y} ")
-    # print(f"\rRight hand's rotation: {right_hand_angle} ", end='', flush=True)
-    #print(f"\rRight hand's gradual opening: {distance_tot_norm}")
-    #print(f"\rDistance from camera: {resize} ")
-    #print(f"\rDistance of right hand from camera: {resize_hand} ")
-    #print(f"\rMean direction of body's movement: {norm_ang} ", end='', flush=True)
-    #print(f"\rMean magnitude of body's movement:: { norm_mag} ", end='', flush=True)
-    
     
     # REMOVE ELEMENTS FROM UI
     #Remove Nose
@@ -401,68 +345,27 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     results.pose_landmarks.landmark[mp_holistic.PoseLandmark.RIGHT_FOOT_INDEX].visibility = 0.0
     
     if START_SOUND:  
-            #MESSAGES TO MAX8
-            client_Max8.send_message("/body/hands_y",hands_mean_y)  #<-------------
-            client_Max8.send_message("/body/hands_x",hands_mean_x)  #<-------------
-            #client_Max8.send_message("/body/hands_xaxisAVG",hands_mean_x)
-            #Right Hand 
-            client_Max8.send_message("/body/open_close", distance_tot)   #<-------------
-            client_Max8.send_message("/body/RH_Speed", velocity_norm_right_hand)
-            #client_Max8.send_message("/body/RH_Acceleration", acceleration_norm_right_hand)
-            client_Max8.send_message("/body/expansion", bufferExp)   #<-------------
-            client_Max8.send_message("/body/RH_rotation", right_hand_angle)   #<-------------
-            client_Max8.send_message("/body/RH_open", distance_tot_norm)
-            client_Max8.send_message("/body/RH_camDistance", resize_hand)
-            
-            #Left Hand
-            #client_Max8.send_message("/body/LH_Speed",  velocity_norm_left_hand)
-            #client_Max8.send_message("/body/LH_Acceleration",acceleration_norm_left_hand)
-            #client_Max8.send_message("/body/LH_Expasion", hand_expansion)     #?????
-            #client_Max8.send_message("/body/LH_Rotation", right_hand_angle)
-          
-            #Head
-            client_Max8.send_message("/body/H_Speed", velocity_norm_head)
-            #client_Max8.send_message("/body/H_Acceleration", acceleration_head)
-            client_Max8.send_message("/body/H_camDistance", resize)
-            client_Max8.send_message("/body/H_centerX", center_head_x)
-            client_Max8.send_message("/body/H_centerY", center_head_y)
-            
-            #Body
-            client_Max8.send_message("/body/direction", norm_ang)
-            client_Max8.send_message("/body/bodyVelocity", norm_mag)
-            
-            client_MusicVAE.send_message("/filter1", [1., 2.])
-            
-            #Values extracted from buffers:
-            #client_Max8.send_message("/body/flow/sumTimeFrames", sumTimeFrames)  #FARLO OGNI 10?
-            client_Max8.send_message("/body/flow", meanMagnitude)   #<-------------
-            
+            #MESSAGES TO MAX8 
+            client_Max8.send_message("/body/flow", meanMagnitude)             #1
+            client_Max8.send_message("/body/opening", valueOC)                #2 
+            client_Max8.send_message("/body/open_close", open_close)          #3
+            client_Max8.send_message("/body/RH_rotation", right_hand_angle)   #4   
+            client_Max8.send_message("/body/LH_Rotation", left_hand_angle)    #5
+            client_Max8.send_message("/body/hands_y",valueY)                  #6
+            client_Max8.send_message("/body/hands_x",valueX)                  #7
+            client_Max8.send_message("/body/hands_expansion",valueExp)        #8
+  
             '''
             #MESSAGES TO MUSIC VAE
-            client_MusicVAE.send_message("/body/hands_HeightAVG",hands_mean_y)
-            #Right Hand 
-            client_MusicVAE.send_message("/body/RH_OpenClose", open_close)
-            client_MusicVAE.send_message("/body/RH_Speed", velocity_norm_right_hand)
-            client_MusicVAE.send_message("/body/RH_Acceleration", acceleration_norm_right_hand)
-            client_MusicVAE.send_message("/body/RH_Expasion", hand_expansion)
-            client_MusicVAE.send_message("/body/RH_Rotation", right_hand_angle)
-            client_MusicVAE.send_message("/body/RH_GradualOpening", distance_tot_norm)
-            client_MusicVAE.send_message("/body/RH_camDistance", resize_hand)
-            
-            #Left Hand
-            client_MusicVAE.send_message("/body/LH_Speed",  velocity_norm_left_hand)
-            #client_MusicVAE.send_message("/body/LH_Acceleration",acceleration_norm_left_hand)
-            client_MusicVAE.send_message("/body/LH_Expasion", hand_expansion)
-            client_MusicVAE.send_message("/body/LH_Rotation", right_hand_angle)
-          
-            #Head
-            client_MusicVAE.send_message("/body/H_Speed", velocity_norm_head)
-            client_MusicVAE.send_message("/body/H_Acceleration", acceleration_head)
-            client_MusicVAE.send_message("/body/H_camDistance", resize)
-            
-            #Body
-            client_MusicVAE.send_message("/body/bodyDirection", norm_ang)
-            client_MusicVAE.send_message("/body/bodyVelocity", norm_mag)
+            client_MusicVAE.send_message("/filter1", [1., 2.])
+            client_MusicVAE.send_message("/body/flow", meanMagnitude)             #1
+            client_MusicVAE.send_message("/body/opening", valueOC)                #2 
+            client_MusicVAE.send_message("/body/open_close", open_close)          #3
+            client_MusicVAE.send_message("/body/RH_rotation", right_hand_angle)   #4   
+            client_MusicVAE.send_message("/body/LH_Rotation", left_hand_angle)    #5
+            client_MusicVAE.send_message("/body/hands_y",valueY)                  #6
+            client_MusicVAE.send_message("/body/hands_x",valueX)                  #7
+            client_MusicVAE.send_message("/body/hands_x",valueExp)                #8
             '''
             
     # Draw landmark annotation on the image.
