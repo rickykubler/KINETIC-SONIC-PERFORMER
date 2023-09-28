@@ -6,9 +6,9 @@ This is a software for an artistic installation in order to make interact with t
 
 ## Installation
 Dowload this repository and all the specific softwares:
-*[Visual Studio Code](https://code.visualstudio.com/).
-*[Max8](https://cycling74.com/downloads).
-*[TouchDesigner](https://derivative.ca/UserGuide/Install_TouchDesigner).
+* [Visual Studio Code](https://code.visualstudio.com/).
+* [Max8](https://cycling74.com/downloads).
+* [TouchDesigner](https://derivative.ca/UserGuide/Install_TouchDesigner).
   
 ## How to use
 In order to use the software it is suggested to use at least two computers so to have more memory to use.
