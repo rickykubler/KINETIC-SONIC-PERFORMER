@@ -6,24 +6,23 @@ This is a software for an artistic installation in order to make interact with t
 
 ## Installation
 Dowload this repository and all the specific softwares:
-* [Visual Studio Code](https://code.visualstudio.com/).
-* [Max8](https://cycling74.com/downloads).
-* [TouchDesigner](https://derivative.ca/UserGuide/Install_TouchDesigner).
+* [Visual Studio Code](https://code.visualstudio.com/)
+* [Max8](https://cycling74.com/downloads)
+* [TouchDesigner](https://derivative.ca/UserGuide/Install_TouchDesigner)
   
 ## How to use
 In order to use the software it is suggested to use at least two computers so to have more memory to use.
 Open all the files in their dedicated programs and run them contemporarly since it is a real time project:
-* PincoPallino file with Visual Studio Code
-* Ciaone file with Max8
-* CeLaFaremo file with TouchDesigner
+* *PincoPallino* file with Visual Studio Code
+* *Ciaone* file with Max8
+* *CeLaFaremo* file with TouchDesigner
 
 ## Instructions
 Qui inseriremo delle istruzioni generali una volta fatte le mappature.
 
 ## Video demo and Report
 
-A video *demo* demonstration of the project is available at this [link](https://www.youtube.com/).
-
+A video demonstration of the project is available at this [link](https://www.youtube.com/).
 A brief pdf report of the project is available at this [link](https://github.com/andrewbertax96/ACTAM-Synth/blob/main/presentation/ACTAM___Subtractive_Synthesizer.pdf).
 
 ###
