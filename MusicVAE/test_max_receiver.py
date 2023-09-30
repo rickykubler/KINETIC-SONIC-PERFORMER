@@ -15,6 +15,7 @@ latent_vectors = json.load(input_file)
 keys = list(latent_vectors.keys())
 len_keys = len(keys)
 test_idx = 0
+
 # importing timer for monitoring model time generation
 import time
 
@@ -27,6 +28,8 @@ BAR_SECONDS = 2.0
 CHORD_DEPTH = 49
 SAMPLE_RATE = 44100
 SF2_PATH = '/content/SGM-v2.01-Sal-Guit-Bass-V1.3.sf2'
+
+mean = 0
 
 # Functions
 
@@ -101,7 +104,7 @@ def main(address: str, *osc_arguments):
     print(address, osc_arguments)
     chord = osc_arguments[0]
     var = osc_arguments[1]
-    send_generate_sequence(temperature = 0.01, chord_1 = chord, std = var)
+    send_generate_sequence(temperature = 0.01, chord_1 = chord, std = np.sqrt(var))
     
 
 # ----- Set up the Server -----
@@ -120,11 +123,9 @@ def send_generate_sequence(temperature = 0.01, chord_1 = 'C', std = 1):
   double_seq = []
   chords = [chord_1]
 
-  z = np.random.normal(std, 0, size=[1, Z_SIZE]) 
-  #z = latent_vectors.get(keys[8])
-  #z = np.expand_dims(z, 0)
-  noise = np.random.normal(0, std, size=[1, TOTAL_STEPS])
-
+  global mean
+  z = np.random.normal(mean, std, size=[1, Z_SIZE]) 
+  mean = np.mean(z)
   seqs = [
     model.decode(length=TOTAL_STEPS, z=z, temperature=temperature, c_input=chord_encoding(c))[0]
     for c in chords
