@@ -91,7 +91,7 @@ bufferX=np.zeros(300)
 bufferY=np.zeros(300)
 bufferOC=np.zeros(20) 
 
-epsilon=10^(-3)   #vd
+epsilon=0.001   #vd
  
 # FOR EVERY FRAME
 with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_tracking_confidence=0.0) as holistic:
@@ -241,9 +241,9 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # 2) GRADUAL OPENING OF THE HAND
     bufferOC=bufferOC[:-1]
     bufferOC=np.append(distance_tot, bufferOC)
-    maxOC=np.max(bufferOC)
+    maxOC=np.max(bufferOC)+epsilon
     minOC=np.min(bufferOC)
-    valueOC=(distance_tot-minOC)/(maxOC-minOC+epsilon)
+    valueOC=(distance_tot-minOC)/(maxOC-minOC)
     #print(valueOC)
     
     # 3) OPEN/CLOSE
@@ -281,10 +281,10 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     #print(hands_mean_y)
     bufferY=bufferY[:-1]
     bufferY=np.append(hands_mean_y, bufferY)
-    maxY=np.max(bufferY)
+    maxY=np.max(bufferY)+epsilon
     minY=np.min(bufferY)
     meanY=np.mean(bufferY[:15])
-    valueY=1-((meanY-minY)/(maxY-minY+epsilon))   #vd. se 1-
+    valueY=1-((meanY-minY)/(maxY-minY))   #vd. se 1-
     #print(valueY)
     
     # 7) HANDS x
@@ -296,10 +296,10 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     #print(hands_mean_x)
     bufferX=bufferX[:-1]
     bufferX=np.append(hands_mean_x, bufferX)
-    maxX=np.max(bufferX)
+    maxX=np.max(bufferX)+epsilon
     minX=np.min(bufferX)
     meanX=np.mean(bufferX[:15])
-    valueX=1-((meanX-minX)/(maxX-minX+epsilon))   #invalid value encountered in double_scalars
+    valueX=((meanX-minX)/(maxX-minX))   #invalid value encountered in double_scalars
     #print(valueX)
     
     # 8) HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS 
@@ -311,10 +311,10 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     bufferExp=bufferExp[:-1]
     bufferExp=np.append(hand_expansion, bufferExp)
     minExp=np.min(bufferExp)
-    maxExp=np.max(bufferExp)
+    maxExp=np.max(bufferExp)+epsilon
     meanExp=np.mean(bufferExp[:15])
-    valueExp=(meanExp-minExp)/(maxExp-minExp+epsilon)
-    print(valueExp)
+    valueExp=(meanExp-minExp)/(maxExp-minExp)
+    #print(valueExp)
         
     prevgray = gray
     
