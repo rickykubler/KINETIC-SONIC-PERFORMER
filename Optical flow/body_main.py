@@ -85,7 +85,8 @@ success, prev = cap.read()
 prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
 
 #BUFFERS
-bufferMag=np.zeros(50)
+bufferMag=np.zeros(25)
+bufferVar=np.zeros(25)
 bufferExp=np.zeros(300)
 bufferX=np.zeros(300)  
 bufferY=np.zeros(300)
@@ -128,11 +129,18 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # UPDATE BUFFER FOR OPTICAL FLOW VELOCITY TO SMOOTH VALUES
     bufferMag=bufferMag[:-1]
     bufferMag=np.append(avg_mag, bufferMag)
-    maxMag=np.max(bufferMag)
+    maxMag=np.max(bufferMag)+epsilon
     minMag=np.min(bufferMag)
-    meanMagnitude=np.mean(bufferMag[:10])
-    valueMag=(meanMagnitude-minMag)/(maxMag-minMag+epsilon)
+    meanMagnitude=np.mean(bufferMag[:3])
+    valueMag=(meanMagnitude-minMag)/(maxMag-minMag)
     #print(valueMag)
+    
+    varMag=np.var(bufferMag[:10])
+    bufferVar=np.append(varMag, bufferVar)
+    maxVar=np.max(bufferVar)+epsilon
+    minVar=np.min(bufferVar)
+    valueVar=(varMag-minVar)/(maxVar-minVar)
+    #print(valueVar)
 
 
     # DEPTH OF THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
@@ -243,16 +251,20 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     bufferOC=np.append(distance_tot, bufferOC)
     maxOC=np.max(bufferOC)+epsilon
     minOC=np.min(bufferOC)
-    valueOC=(distance_tot-minOC)/(maxOC-minOC)
+    meanOC=np.mean(bufferOC[:5])
+    valueOC=(meanOC-minOC)/(maxOC-minOC)
     #print(valueOC)
     
     # 3) OPEN/CLOSE
-    if valueOC>0.4:
+    if valueOC>0.6:
       open_close=1
       #print("Open")
-    else: 
+    elif valueOC<0.4: 
       open_close=0
       #print("Closed")
+    else:
+      open_close=0.5
+      #print("No decision")
       
     # 4) ROTATION OF THE RIGHT HAND
     coord_x_right = right_middle_x - right_wrist_x
@@ -312,7 +324,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     bufferExp=np.append(hand_expansion, bufferExp)
     minExp=np.min(bufferExp)
     maxExp=np.max(bufferExp)+epsilon
-    meanExp=np.mean(bufferExp[:15])
+    meanExp=np.mean(bufferExp[:10])
     valueExp=(meanExp-minExp)/(maxExp-minExp)
     #print(valueExp)
         
@@ -362,27 +374,27 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     if START_SOUND:  
             #MESSAGES TO MAX8 
-            #client_Max8.send_message("/body/flow", meanMagnitude)             #1
+            #client_Max8.send_message("/body/flow", valueMag)                 #1
             client_Max8.send_message("/body/opening", valueOC)                #2 
             client_Max8.send_message("/body/open_close", open_close)          #3
             client_Max8.send_message("/body/RH_rotation", right_hand_angle)   #4   
-            client_Max8.send_message("/body/LH_Rotation", left_hand_angle)    #5
+            client_Max8.send_message("/body/LH_rotation", left_hand_angle)    #5
             client_Max8.send_message("/body/hands_y",valueY)                  #6
             client_Max8.send_message("/body/hands_x",valueX)                  #7
             client_Max8.send_message("/body/hands_expansion",valueExp)        #8
   
-            '''
+            
             #MESSAGES TO MUSIC VAE
             client_MusicVAE.send_message("/filter1", [1., 2.])
-            client_MusicVAE.send_message("/body/flow", meanMagnitude)             #1
-            client_MusicVAE.send_message("/body/opening", valueOC)                #2 
-            client_MusicVAE.send_message("/body/open_close", open_close)          #3
-            client_MusicVAE.send_message("/body/RH_rotation", right_hand_angle)   #4   
-            client_MusicVAE.send_message("/body/LH_Rotation", left_hand_angle)    #5
-            client_MusicVAE.send_message("/body/hands_y",valueY)                  #6
-            client_MusicVAE.send_message("/body/hands_x",valueX)                  #7
-            client_MusicVAE.send_message("/body/hands_x",valueExp)                #8
-            '''
+            client_MusicVAE.send_message("/body/flow", [valueMag, varMag])                   #1
+            #client_MusicVAE.send_message("/body/opening", valueOC)                #2 
+            #client_MusicVAE.send_message("/body/open_close", open_close)          #3
+            #client_MusicVAE.send_message("/body/RH_rotation", right_hand_angle)   #4   
+            #client_MusicVAE.send_message("/body/LH_Rotation", left_hand_angle)    #5
+            #client_MusicVAE.send_message("/body/hands_y",valueY)                  #6
+            #client_MusicVAE.send_message("/body/hands_x",valueX)                  #7
+            #client_MusicVAE.send_message("/body/hands_x",valueExp)                #8
+            
             
     # Draw landmark annotation on the image.
     image.flags.writeable = True
