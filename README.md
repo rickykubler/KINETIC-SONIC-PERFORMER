@@ -41,9 +41,10 @@ For body_main.py are requested:
 * MaxIPv4 device
 * MusicVAE IPv4 device
   
-For Max8 set on the program your IPs:
+For Max8 set on the program your IPs on the first lines of blocks.<br></br>
+The second line tells you which IPs you are using.
 <p align="center">
-<img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
+<img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
 </p>
 
 For TouchDesigner set the IP in the CHOP block "oscin1":
