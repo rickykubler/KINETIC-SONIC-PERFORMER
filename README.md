@@ -37,11 +37,11 @@ For body_main.py are requested:
  * MusicVAE IPv4 device
 For max8 set on the program your Ips:
 <p align="center">
-<img src="style/img/Keyboard.jpeg" alt="keyboard" width="1200"/>
+<img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
 </p>
 For TouchDesigner set the IP in the CHOP block "oscin1":
 <p align="center">
-<img src="style/img/Keyboard.jpeg" alt="keyboard" width="1200"/>
+<img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
 </p>
 
 ## How to use
