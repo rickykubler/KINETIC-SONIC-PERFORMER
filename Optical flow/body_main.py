@@ -8,14 +8,14 @@ import time
 
 Max8_IP_port=7400
 MusicVAE_port=7400
-request=False
+request=False 
 
 if request:
   Max8_IP=input('Please enter the Max8 client IPv4:\n')
   MusicVAE_IP=input('Please enter MusicVAE client IPv4:\n')
 else:
-  Max8_IP='192.168.1.213'
-  MusicVAE_IP='192.168.1.159'
+  Max8_IP='192.168.175.27'
+  MusicVAE_IP='192.168.175.132'
 
 
 mp_drawing = mp.solutions.drawing_utils
