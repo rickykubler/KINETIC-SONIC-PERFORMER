@@ -22,7 +22,7 @@ import time
 
 # reading from a json file pre tested latent vectors
 import json
-input_file = open('MusicVAE/saveZ.json')
+input_file = open('3_MUSICVAE/saveZ.json')
 latent_vectors = json.load(input_file)
 keys = list(latent_vectors.keys())
 
