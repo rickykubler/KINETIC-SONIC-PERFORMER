@@ -32,7 +32,7 @@ Open all the files into the Main folder in their dedicated programs and run them
 * *Ciaone* file with Max8
 * *CeLaFaremo* file with TouchDesigner
 
-In order to allow the communication between the modules you have to set up client/servers.
+In order to allow the communication between the modules you have to set up client/servers.<br></br>
 For MusicVAE.py are requested as input from the keyboard:
 * MaxIPv4 device
 * Current device IPv4
@@ -57,7 +57,7 @@ Qui inseriremo delle istruzioni generali una volta fatte le mappature.
 ## Video demo and Report
 
 A video demonstration of the project is available at this [link](https://www.youtube.com/).<br></br>
-A brief pdf report of the project is available at this [link](https://github.com/andrewbertax96/ACTAM-Synth/blob/main/presentation/ACTAM___Subtractive_Synthesizer.pdf).
+A brief pdf report of the project is available at this [link](https://github.com/rickykubler/CPAC_Group_7/blob/main/CPAC_ProjectReport.pdf).
 
 ###
 This application was developed as a project for the "Creative Programming & Computing" course at [Politecnico di Milano](https://www.polimi.it) (MSc in Music and Acoustic Engineering).
