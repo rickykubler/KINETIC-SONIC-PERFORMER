@@ -32,7 +32,7 @@ Open all the files into the Main folder in their dedicated programs and run them
 * *Ciaone* file with Max8
 * *CeLaFaremo* file with TouchDesigner
 
-In order to allow the communication between the modules you have to set up client/servers.<br></br>
+In order to allow communication between the modules you have to set up clients/servers.<br></br>
 For MusicVAE.py are requested as input from the keyboard:
 * MaxIPv4 device
 * Current device IPv4
@@ -41,8 +41,7 @@ For body_main.py are requested:
 * MaxIPv4 device
 * MusicVAE IPv4 device
   
-For Max8 set on the program your IPs on the first lines of blocks.<br></br>
-The second line tells you which IPs you are using.
+For Max8 set on the program your IPs on the first lines of blocks. The second line tells you which IPs and Ports you are using.
 <p align="center">
 <img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
 </p>
