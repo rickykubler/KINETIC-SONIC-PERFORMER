@@ -90,7 +90,9 @@ bufferVar=np.zeros(25)
 bufferExp=np.zeros(300)
 bufferX=np.zeros(300)  
 bufferY=np.zeros(300)
-bufferOC=np.zeros(200) 
+bufferOC=np.zeros(300) 
+bufferRR=np.zeros(100)
+bufferLR=np.zeros(100)
 
 epsilon=0.001   #vd
  
@@ -131,11 +133,11 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     valueMag=(meanMagnitude-minMag)/(maxMag-minMag)
     #print(valueMag)
     
-    varMag=np.var(bufferMag[:10])
-    bufferVar=np.append(varMag, bufferVar)
-    maxVar=np.max(bufferVar)+epsilon
-    minVar=np.min(bufferVar)
-    valueVar=(varMag-minVar)/(maxVar-minVar)
+    #varMag=np.var(bufferMag[:10])
+    #bufferVar=np.append(varMag, bufferVar)
+    #maxVar=np.max(bufferVar)+epsilon
+    #minVar=np.min(bufferVar)
+    #valueVar=(varMag-minVar)/(maxVar-minVar)
     #print(valueVar)
 
     # DEPTH OF THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
@@ -241,33 +243,49 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     bufferOC=np.append(distance_tot, bufferOC)
     maxOC=np.max(bufferOC)+epsilon
     minOC=np.min(bufferOC)
-    meanOC=np.mean(bufferOC[:5])
+    meanOC=np.mean(bufferOC[:4])
     valueOC=(meanOC-minOC)/(maxOC-minOC)
+    #print(valueOC)
     if valueOC==0.0:
       valueOC=0.5    
-    #print(valueOC)
     
     # 3) OPEN/CLOSE
-    if valueOC>0.6:
+    if valueOC>0.45:
       open_close=1
-      #print("Open")
-    elif valueOC<0.4: 
+      print("Open")
+    else: 
       open_close=0
-      #print("Closed")
-    else:
-      open_close=0.5
-      #print("No decision")
+      print("Closed")
       
     # 4) ROTATION OF THE RIGHT HAND
     coord_x_right = right_middle_x - right_wrist_x
     coord_y_right = right_middle_y - right_wrist_y
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
+    if right_hand_angle==0:
+      right_hand_angle=1
+    bufferRR=bufferRR[:-1]
+    bufferRR=np.append(right_hand_angle, bufferRR)
+    maxRR=np.max(bufferRR)+epsilon
+    minRR=np.min(bufferRR)
+    meanRR=np.mean(bufferRR[:15])
+    valueRR=((meanRR-minRR)/(maxRR-minRR))
+    #print(valueRR)
     
     # 5) ROTATION OF THE LEFT HAND
     coord_x_left = left_middle_x - left_wrist_x
     coord_y_left = left_middle_y - left_wrist_y
     left_hand_angle = abs(math.atan2(coord_x_left, coord_y_left))/math.pi 
-    print(left_hand_angle)
+    if left_hand_angle==0:
+      left_hand_angle=1
+    bufferLR=bufferLR[:-1]
+    bufferLR=np.append(left_hand_angle, bufferLR)
+    maxLR=np.max(bufferLR)+epsilon
+    minLR=np.min(bufferLR)
+    meanLR=np.mean(bufferLR[:15])
+    valueLR=(meanLR-minLR)/(maxLR-minLR)
+    if valueLR==0:
+      valueLR=1
+    #print(valueLR)
     
     # 6) HANDS HEIGHT --> MIDDLE POINT BETWEEN WRISTS
     hands_mean_y= ((left_wrist_y+right_wrist_y)/2)  
@@ -347,14 +365,14 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #MESSAGES TO MAX8 
             client_Max8.send_message("/body/opening", valueOC)                #2 
             client_Max8.send_message("/body/open_close", open_close)          #3
-            client_Max8.send_message("/body/RH_rotation", right_hand_angle)   #4   
-            client_Max8.send_message("/body/LH_rotation", left_hand_angle)    #5
+            client_Max8.send_message("/body/RH_rotation", valueRR)   #4   
+            client_Max8.send_message("/body/LH_rotation", valueLR)    #5
             client_Max8.send_message("/body/hands_y",valueY)                  #6
             client_Max8.send_message("/body/hands_x",valueX)                  #7
             client_Max8.send_message("/body/hands_expansion",valueExp)        #8  
             
             #MESSAGES TO MUSIC VAE
-            client_MusicVAE.send_message("/body/flow", [valueMag, valueVar])  #1
+            client_MusicVAE.send_message("/body/flow", valueMag)  #1
             
             
     # Draw landmark annotation on the image.
