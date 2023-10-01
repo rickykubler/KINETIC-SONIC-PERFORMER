@@ -85,12 +85,12 @@ success, prev = cap.read()
 prevgray = cv2.cvtColor(prev, cv2.COLOR_BGR2GRAY)
 
 #BUFFERS
-bufferMag=np.zeros(25)
+bufferMag=np.zeros(50)
 bufferVar=np.zeros(25)
 bufferExp=np.zeros(300)
 bufferX=np.zeros(300)  
 bufferY=np.zeros(300)
-bufferOC=np.zeros(20) 
+bufferOC=np.zeros(200) 
 
 epsilon=0.001   #vd
  
@@ -122,16 +122,12 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     # 1) MEAN NORMALIZED MAGNITUDE: MEAN VELOCITY OF THE WHOLE MOVEMENT IN THE SCREEN 
     #norm_mag=float(np.average(magnitude,weights = angle))  
-    avg_mag=float(np.average(magnitude))
-    # CLIPPING OPTICAL FLOW VELOCITY
-    #if norm_mag>1:
-    #  norm_mag=1 
-    # UPDATE BUFFER FOR OPTICAL FLOW VELOCITY TO SMOOTH VALUES
+    avg_mag=float(np.average(magnitude, weights = angle))
     bufferMag=bufferMag[:-1]
     bufferMag=np.append(avg_mag, bufferMag)
     maxMag=np.max(bufferMag)+epsilon
     minMag=np.min(bufferMag)
-    meanMagnitude=np.mean(bufferMag[:3])
+    meanMagnitude=np.mean(bufferMag[:10])
     valueMag=(meanMagnitude-minMag)/(maxMag-minMag)
     #print(valueMag)
     
@@ -142,20 +138,13 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     valueVar=(varMag-minVar)/(maxVar-minVar)
     #print(valueVar)
 
-
     # DEPTH OF THE HEAD AND OF THE RIGHT WRIST (used also to adapt parameters wrt the distance from camera)
     if not results.pose_landmarks:
       continue
     
-    #head_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.NOSE].z 
-    #right_wrist_depth= results.pose_landmarks.landmark[mp_pose.PoseLandmark.RIGHT_WRIST].z
-    # IMPORTANT: "RESIZE" PARAMETER WRT DISTANCE, DEPTH NORMALIZATION ("head_depth" is pretty linear --> variation of 1 means variation of 0,6 meters in depth, variation of 2 means variation of 1,20 meters in this way *0.6 converts the number in meters, do not touch /2 (2 maximum distance perceived) gives a normalization of distance, a percentage of how much you are distant)
-    # resize=((3-abs(head_depth))*(0.6))/2
-    # /1.7 (1.7 maximum distance perceived) gives a normalization of distance, a percentage of how much you are distant
-    # resize_hand=((3-abs(right_wrist_depth))*(0.6))/(1.7)
-    
     # RIGHT HAND LANDMARKS
     if not results.right_hand_landmarks:
+      
       right_thumb_x=0
       right_thumb_y=0
    
@@ -209,6 +198,7 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     # LEFT HAND LANDMARKS
     if not results.left_hand_landmarks:
+      
       left_thumb_x=0
       left_thumb_y=0
    
@@ -253,6 +243,8 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     minOC=np.min(bufferOC)
     meanOC=np.mean(bufferOC[:5])
     valueOC=(meanOC-minOC)/(maxOC-minOC)
+    if valueOC==0.0:
+      valueOC=0.5    
     #print(valueOC)
     
     # 3) OPEN/CLOSE
@@ -270,56 +262,35 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     coord_x_right = right_middle_x - right_wrist_x
     coord_y_right = right_middle_y - right_wrist_y
     right_hand_angle = abs(math.atan2(coord_x_right, coord_y_right))/math.pi
-    #if right_hand_angle==0:   OPPURE 1-abs(...)
-    #  right_hand_angle=1
-    #print(right_hand_angle)
     
     # 5) ROTATION OF THE LEFT HAND
     coord_x_left = left_middle_x - left_wrist_x
     coord_y_left = left_middle_y - left_wrist_y
-    left_hand_angle = abs(math.atan2(coord_x_left, coord_y_left))/math.pi
-    #if left_hand_angle==0:
-    #  left_hand_angle=1
-    #print(left_hand_angle)
+    left_hand_angle = abs(math.atan2(coord_x_left, coord_y_left))/math.pi 
+    print(left_hand_angle)
     
     # 6) HANDS HEIGHT --> MIDDLE POINT BETWEEN WRISTS
-    hands_mean_y= ((left_wrist_y+right_wrist_y)/2)   #*resize
-    #if not results.left_hand_landmarks:....
-    #  hands_mean_y=0.5
-    #if hands_mean_y>1:
-    #  hands_mean_y=1 
-    #if hands_mean_y<0:
-    #  hands_mean_y=0 
-    #print(hands_mean_y)
+    hands_mean_y= ((left_wrist_y+right_wrist_y)/2)  
     bufferY=bufferY[:-1]
     bufferY=np.append(hands_mean_y, bufferY)
     maxY=np.max(bufferY)+epsilon
     minY=np.min(bufferY)
     meanY=np.mean(bufferY[:15])
-    valueY=1-((meanY-minY)/(maxY-minY))   #vd. se 1-
+    valueY=1-((meanY-minY)/(maxY-minY))  
     #print(valueY)
     
     # 7) HANDS x
-    hands_mean_x= ((left_wrist_x+right_wrist_x)/2)  #*resize
-    #if hands_mean_x>1:
-    #    hands_mean_x=1 
-    #if hands_mean_x<0:
-    #    hands_mean_x=0 
-    #print(hands_mean_x)
+    hands_mean_x= ((left_wrist_x+right_wrist_x)/2)  
     bufferX=bufferX[:-1]
     bufferX=np.append(hands_mean_x, bufferX)
     maxX=np.max(bufferX)+epsilon
     minX=np.min(bufferX)
     meanX=np.mean(bufferX[:15])
-    valueX=((meanX-minX)/(maxX-minX))   #invalid value encountered in double_scalars
+    valueX=((meanX-minX)/(maxX-minX))   
     #print(valueX)
     
     # 8) HANDS EXPANSION  --> EUCLIDEAN DISTANCE BETWEEN HANDS 
-    hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_y-left_wrist_y)**2)**0.5))    #*resize
-    # hand_expansion= (((center_right_hand_x-center_left_hand_x)**2 + (center_right_hand_y-center_left_hand_y)**2)**0.5)/abs(center_head)
-    #if hand_expansion>1: 
-    #    hand_expansion=1
-    
+    hand_expansion= ((((right_wrist_x-left_wrist_x)**2 + (right_wrist_y-left_wrist_y)**2)**0.5))    
     bufferExp=bufferExp[:-1]
     bufferExp=np.append(hand_expansion, bufferExp)
     minExp=np.min(bufferExp)
@@ -374,26 +345,16 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     
     if START_SOUND:  
             #MESSAGES TO MAX8 
-            #client_Max8.send_message("/body/flow", valueMag)                 #1
             client_Max8.send_message("/body/opening", valueOC)                #2 
             client_Max8.send_message("/body/open_close", open_close)          #3
             client_Max8.send_message("/body/RH_rotation", right_hand_angle)   #4   
             client_Max8.send_message("/body/LH_rotation", left_hand_angle)    #5
             client_Max8.send_message("/body/hands_y",valueY)                  #6
             client_Max8.send_message("/body/hands_x",valueX)                  #7
-            client_Max8.send_message("/body/hands_expansion",valueExp)        #8
-  
+            client_Max8.send_message("/body/hands_expansion",valueExp)        #8  
             
             #MESSAGES TO MUSIC VAE
-            client_MusicVAE.send_message("/filter1", [1., 2.])
-            client_MusicVAE.send_message("/body/flow", [valueMag, varMag])                   #1
-            #client_MusicVAE.send_message("/body/opening", valueOC)                #2 
-            #client_MusicVAE.send_message("/body/open_close", open_close)          #3
-            #client_MusicVAE.send_message("/body/RH_rotation", right_hand_angle)   #4   
-            #client_MusicVAE.send_message("/body/LH_Rotation", left_hand_angle)    #5
-            #client_MusicVAE.send_message("/body/hands_y",valueY)                  #6
-            #client_MusicVAE.send_message("/body/hands_x",valueX)                  #7
-            #client_MusicVAE.send_message("/body/hands_x",valueExp)                #8
+            client_MusicVAE.send_message("/body/flow", [valueMag, valueVar])  #1
             
             
     # Draw landmark annotation on the image.
