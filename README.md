@@ -4,7 +4,7 @@ It can be used by an artist in order to make his performance more appealing than
 The system uses a sensor (camera) that receives information from the external real environment and then a visual representation reacts to the inputs given by showing a graphic representation on a screen and playing some sounds.
 
 <p align="center">
-<img src="style/img/Keyboard.jpeg" alt="keyboard" width="1200"/>
+<img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
 </p>
 
 ## Installation
@@ -30,18 +30,21 @@ Open all the files into the Main folder in their dedicated programs and run them
 
 In order to allow the communication between the modules you have to set up client/servers.
 For MusicVAE.py are requested as input from the keyboard:
- * MaxIPv4 device
- * Current device IPv4
+* MaxIPv4 device
+* Current device IPv4
+  
 For body_main.py are requested: 
- * MaxIPv4 device
- * MusicVAE IPv4 device
-For max8 set on the program your Ips:
+* MaxIPv4 device
+* MusicVAE IPv4 device
+  
+For Max8 set on the program your IPs:
 <p align="center">
-<img src="style/img/Keyboard.jpeg" alt="keyboard" width="1200"/>
+<img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
 </p>
+
 For TouchDesigner set the IP in the CHOP block "oscin1":
 <p align="center">
-<img src="style/img/TouchdesignerSETUP.jpg" alt="keyboard" width="1200"/>
+<img src="img/TouchdesignerSETUP.jpg" alt="touchdesigner" width="200"/>
 </p>
 
 ## How to use
