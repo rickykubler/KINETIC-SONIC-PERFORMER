@@ -99,7 +99,7 @@ config = configs.CONFIG_MAP['hier-multiperf_vel_1bar_med_chords']
 model = TrainedModel(
   config, 
   batch_size=BATCH_SIZE,
-  checkpoint_dir_or_path='MusicVAE\content\model_chords_fb64.ckpt')
+  checkpoint_dir_or_path='3_MUSICVAE\content\model_chords_fb64.ckpt')
 
 # ---- CLIENT AND SERVER SETUP ----
 import argparse
