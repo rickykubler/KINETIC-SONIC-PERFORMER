@@ -4,7 +4,7 @@ It can be used by an artist in order to make his performance more appealing than
 The system uses a sensor (camera) that receives information from the external real environment and then a visual representation reacts to the inputs given by showing a graphic representation on a screen and playing some sounds.
 
 <p align="center">
-<img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
+<img src="style/img/Keyboard.jpeg" alt="keyboard" width="1200"/>
 </p>
 
 ## Installation
@@ -37,11 +37,11 @@ For body_main.py are requested:
  * MusicVAE IPv4 device
 For max8 set on the program your Ips:
 <p align="center">
-<img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
+<img src="style/img/Keyboard.jpeg" alt="keyboard" width="1200"/>
 </p>
 For TouchDesigner set the IP in the CHOP block "oscin1":
 <p align="center">
-<img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
+<img src="style/img/Keyboard.jpeg" alt="keyboard" width="1200"/>
 </p>
 
 ## How to use
