@@ -30,7 +30,7 @@ Open all the files into the Main folder in their dedicated programs and run them
 * *MusicVAE.py* file Visual Studio Code (it is better to run it exclusively on a single device since it requires a lot of CPU)
 * *body_main.py* file with Visual Studio Code
 * *Ciaone* file with Max8
-* *CeLaFaremo* file with TouchDesigner
+* *TouchDesigner_Visual.toe* file with TouchDesigner
 
 In order to allow communication between the modules you have to set up clients/servers.<br></br>
 For MusicVAE.py are requested as input from the keyboard:
