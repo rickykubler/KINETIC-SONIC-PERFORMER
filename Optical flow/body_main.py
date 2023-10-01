@@ -6,6 +6,18 @@ from pythonosc import udp_client
 import math
 import time
 
+Max8_IP_port=7400
+MusicVAE_port=7400
+request=False
+
+if request:
+  Max8_IP=input('Please enter the Max8 client IPv4:\n')
+  MusicVAE_IP=input('Please enter MusicVAE client IPv4:\n')
+else:
+  Max8_IP='192.168.1.213'
+  MusicVAE_IP='192.168.1.159'
+
+
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
 mp_holistic = mp.solutions.holistic
@@ -66,12 +78,6 @@ cap = cv2.VideoCapture(0)
 
 # START OSC:
 START_SOUND = True
-
-Max8_IP='192.168.1.213'
-Max8_IP_port=7400
-
-MusicVAE_IP='192.168.1.159'
-MusicVAE_port=7400
 
 # CONNECT WITH Max8 
 client_Max8 = setOSC_Client(Max8_IP, Max8_IP_port)
@@ -252,10 +258,10 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
     # 3) OPEN/CLOSE
     if valueOC>0.45:
       open_close=1
-      print("Open")
+      #print("Open")
     else: 
       open_close=0
-      print("Closed")
+      #print("Closed")
       
     # 4) ROTATION OF THE RIGHT HAND
     coord_x_right = right_middle_x - right_wrist_x
@@ -365,14 +371,14 @@ with mp_holistic.Holistic(model_complexity=1 ,min_detection_confidence=0.0, min_
             #MESSAGES TO MAX8 
             client_Max8.send_message("/body/opening", valueOC)                #2 
             client_Max8.send_message("/body/open_close", open_close)          #3
-            client_Max8.send_message("/body/RH_rotation", valueRR)   #4   
-            client_Max8.send_message("/body/LH_rotation", valueLR)    #5
+            client_Max8.send_message("/body/RH_rotation", valueRR)            #4   
+            client_Max8.send_message("/body/LH_rotation", valueLR)            #5
             client_Max8.send_message("/body/hands_y",valueY)                  #6
             client_Max8.send_message("/body/hands_x",valueX)                  #7
             client_Max8.send_message("/body/hands_expansion",valueExp)        #8  
             
             #MESSAGES TO MUSIC VAE
-            client_MusicVAE.send_message("/body/flow", valueMag)  #1
+            client_MusicVAE.send_message("/body/flow", valueMag)              #1
             
             
     # Draw landmark annotation on the image.
