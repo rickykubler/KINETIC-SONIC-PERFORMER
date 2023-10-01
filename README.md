@@ -19,6 +19,10 @@ pip install -r .\requirements.txt
 ```
 
 In order to use in particular the Magenta library you have to use Python version: 3.7.9<br></br>
+Moreover, you have also to install the last commit of the last working build of Magenta:
+```bash
+pip install git+https://github.com/magenta/magenta.git@67c5ec3d220613ceea3e234a2917030da2a5fa85
+```
 It is suggested to use different machines for performance and computational issues.
 You can set up the communication between devices via OSC protocol, for the sake of simplicity all the ports in the programs are set to default as 7400.
 
