@@ -23,6 +23,12 @@ Moreover, you have also to install the last commit of the last working build of 
 ```bash
 pip install git+https://github.com/magenta/magenta.git@67c5ec3d220613ceea3e234a2917030da2a5fa85
 ```
+
+You should also download the pre-trained model dor the Multi-Track VAE and add it to the folder 3_MUSICVAE/content:
+
+https://storage.cloud.google.com/download.magenta.tensorflow.org/models/music_vae/multitrack/model_chords_fb64.ckpt.data-00000-of-00001
+
+
 It is suggested to use different machines for performance and computational issues.
 You can set up the communication between devices via OSC protocol, for the sake of simplicity all the ports in the programs are set to default as 7400.
 
