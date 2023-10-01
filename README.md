@@ -13,33 +13,22 @@ Download this repository and all the specific software:
 * [Max8](https://cycling74.com/downloads)
 * [TouchDesigner](https://derivative.ca/UserGuide/Install_TouchDesigner)
 
-Write these lines on Visual Studio Code's terminal.
-* Upgrade PIP:
+Download all the required libraries by running on the Visual Studio Code terminal:
 ```bash
-python.exe -m pip install --upgrade pip
-```
-* Activate the virtual environment: 
-```bash
-.\project-venv\Scripts\Activate.ps1
-.\magenta-env\Scripts\Activate.ps1
-```
-* Create the env (Windows): 
-```bash
-py -m venv project-venv
-```
-* Create the env (Mac):
-```bash
--m venv project-venv
+pip install -r .\requirements.txt
 ```
 
-## How to use
-Unless you have a superhero computer, in order to use the software it is suggested to use at least two computers so as to have more memory to use.
+In order to use in particular the Magenta library you have to use Python version: 3.7.9
+In order to use the software it is suggested to use different machines for performance and computational issues.
+You can set up the communication between devices via OSC protocol communications.
+
 Open all the files in their dedicated programs and run them contemporarily since it is a real-time project:
-* *PincoPallino* file with Visual Studio Code
+* *NonnoNanni* file with Visual Studio Code (it is better to run it exclusively on a single device)
+* *body_main.py* file with Visual Studio Code
 * *Ciaone* file with Max8
 * *CeLaFaremo* file with TouchDesigner
-
-## Instructions
+  
+## How to use
 Qui inseriremo delle istruzioni generali una volta fatte le mappature.
 
 ## Video demo and Report
