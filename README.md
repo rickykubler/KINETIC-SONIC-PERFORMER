@@ -1,8 +1,9 @@
 # BODY SOUND
-”Body Sound” is a project whose aim is to develop a virtual musical instrument for an artistic installation.<br/><br/>
-It can be used by an artist in order to make his performance more appealing thanks to the graphic visualization, but it can also have educational purposes to teach the sounds of the different grades of the scale.<br/><br/>
-The system uses a sensor (camera) that receives information from the external real environment and then a visual representation reacts to the inputs given by showing a graphic representation on a screen and playing some sounds.
-
+”Body Sound” is a project built on a full-fledged model designed to foster continuous interaction between the user and the system. It thrives on learning and adaptation to ensure an engaging experience. The fundamental idea is to enable individuals to generate music by moving their bodies within ”Hybrid Contexts,” where artists craft unique interactive systems.
+Utilizing a camera as a sensor to capture the user’s movement, the system processes it through MediaPipe.
+These parameters in turn control MusicVAE (Variational Autoencoder), generating real-time music sequences played in real-time by Max8.
+The audio output also contributes to the creation of a video using TouchDesigner, further enriching the overall sensory experience.<br/><br/>
+This project caters to a wide range of audiences, including artists seeking new forms of expression, an audience eager for immersive experiences, educators interested in interactive teaching tools, technology enthusiasts exploring advanced applications, and the entertainment industry seeking novel ways to engage audiences. Furthermore, it provides a platform for artistic and creative exploration, creating opportunities for the creative community to push beyond traditional boundaries in art and entertainment.<br/><br/>
 <p align="center">
 <img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
 </p>
