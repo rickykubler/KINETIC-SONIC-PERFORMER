@@ -24,7 +24,7 @@ Moreover, you have also to install the last commit of the last working build of 
 pip install git+https://github.com/magenta/magenta.git@67c5ec3d220613ceea3e234a2917030da2a5fa85
 ```
 
-You should also download the pre-trained model dor the Multi-Track VAE and add it to the folder 3_MUSICVAE/content:
+You should also download the pre-trained model for the Multi-Track VAE and add it to the folder 3_MUSICVAE/content:
 
 https://storage.cloud.google.com/download.magenta.tensorflow.org/models/music_vae/multitrack/model_chords_fb64.ckpt.data-00000-of-00001
 
@@ -32,11 +32,20 @@ https://storage.cloud.google.com/download.magenta.tensorflow.org/models/music_va
 It is suggested to use different machines for performance and computational issues.
 You can set up the communication between devices via OSC protocol, for the sake of simplicity all the ports in the programs are set to default as 7400.
 
-Open all the files into the Main folder in their dedicated programs and run them contemporarily since it is a real-time project:
+Open all the files into the *1 - MAIN* folder in their dedicated programs and run them contemporarily since it is a real-time project:
 * *MusicVAE.py* file Visual Studio Code (it is better to run it exclusively on a single device since it requires a lot of CPU)
 * *body_main.py* file with Visual Studio Code
 * *Ciaone* file with Max8
 * *TouchDesigner_Visual.toe* file with TouchDesigner
+
+For Max8 set on the program your IPs on the first lines of blocks. The second line tells you which IPs and Ports you are using.
+<p align="center">
+<img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
+</p>
+Furthermore, you must run Max8 after the compilation of *body_main.py* and *MusicVAE.py*. Use the START button to make it work.
+<p align="center">
+<img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
+</p>
 
 In order to allow communication between the modules you have to set up clients/servers.<br></br>
 For MusicVAE.py are requested as input from the keyboard:
@@ -47,22 +56,17 @@ For body_main.py are requested:
 * MaxIPv4 device
 * MusicVAE IPv4 device
   
-For Max8 set on the program your IPs on the first lines of blocks. The second line tells you which IPs and Ports you are using.
-<p align="center">
-<img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
-</p>
-
 For TouchDesigner set the IP in the CHOP block "oscin1":
 <p align="center">
 <img src="img/TouchdesignerSETUP.jpg" alt="touchdesigner" width="200"/>
 </p>
 
 ## How to use
-1. Open/Closed right hand. Controls Max8’s freeze effect;
+1. Open/Closed right hand: Controls Max8’s freeze effect;
 3. Right-hand rotation.
-4. Left-hand rotation. Controls a filter and a feedback delay;
+4. Left-hand rotation: Controls a filter and a feedback delay;
 5. Height of the hands
-6. Expansion of the hands. Controls the reverb effect
+6. Expansion of the hands: Controls the reverb effect
 
 ## Video demo and Report
 
