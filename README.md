@@ -36,7 +36,7 @@ You can set up the communication between devices via OSC protocol, for the sake 
 Open all the files into the *1 - MAIN* folder in their dedicated programs and run them contemporarily since it is a real-time project:
 * *MusicVAE.py* file Visual Studio Code (it is better to run it exclusively on a single device since it requires a lot of CPU)
 * *body_main.py* file with Visual Studio Code
-* *Ciaone* file with Max8
+<!---* *Ciaone* file with Max8-->
 * *TouchDesigner_Visual.toe* file with TouchDesigner
 
 For Max8 set on the program your IPs on the first lines of blocks. The second line tells you which IPs and Ports you are using.
