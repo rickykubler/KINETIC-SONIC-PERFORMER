@@ -64,10 +64,10 @@ For TouchDesigner set the IP in the CHOP block "oscin1":
 
 ## How to use
 1. Open/Closed right hand: Controls Max8’s freeze effect;
-3. Right-hand rotation.
+3. Right-hand rotation: High Pass Filter;
 4. Left-hand rotation: Controls a filter and a feedback delay;
-5. Height of the hands
-6. Expansion of the hands: Controls the reverb effect
+5. Height of the hands: Presence of Low or High frequencies;
+6. Expansion of the hands: Controls the reverb effect;
 
 ## Video demo and Report
 <!--- A video demonstration of the project is available at this [link](https://www.youtube.com/).<br></br> -->
