@@ -44,9 +44,9 @@ For Max8 set on the program your IPs on the first lines of blocks. The second li
 <img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
 </p>
 Furthermore, you must run Max8 after the compilation of *body_main.py* and *MusicVAE.py*. Use the START button to make it work.
-<!--- <p align="center">
-<img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
-</p> -->
+<p align="center">
+<img src="img/PatchMax2.png" alt="keyboard" width="400"/>
+</p>
 
 In order to allow communication between the modules you have to set up clients/servers.<br></br>
 For MusicVAE.py are requested as input from the keyboard:
