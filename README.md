@@ -1,5 +1,5 @@
-# BODY SOUND
-”Body Sound” is a project built on a full-fledged model designed to foster continuous interaction between the user and the system. It thrives on learning and adaptation to ensure an engaging experience. The fundamental idea is to enable individuals to generate music by moving their bodies within ”Hybrid Contexts,” where artists craft unique interactive systems.
+# KINETIC SONIC PERFORMER
+”Kinetic Sonic Performer” is a project built on a full-fledged model designed to foster continuous interaction between the user and the system. It thrives on learning and adaptation to ensure an engaging experience. The fundamental idea is to enable individuals to generate music by moving their bodies within ”Hybrid Contexts,” where artists craft unique interactive systems.
 Utilizing a camera as a sensor to capture the user’s movement, the system processes it through MediaPipe.
 These parameters in turn control MusicVAE (Variational Autoencoder), generating real-time music sequences played in real-time by Max8.
 The audio output also contributes to the creation of a video using TouchDesigner, further enriching the overall sensory experience.<br/><br/>
