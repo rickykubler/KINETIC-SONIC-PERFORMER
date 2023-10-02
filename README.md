@@ -70,8 +70,7 @@ For TouchDesigner set the IP in the CHOP block "oscin1":
 6. Expansion of the hands: Controls the reverb effect
 
 ## Video demo and Report
-
-A video demonstration of the project is available at this [link](https://www.youtube.com/).<br></br>
+<!--- A video demonstration of the project is available at this [link](https://www.youtube.com/).<br></br> -->
 A brief pdf report of the project is available at this [link](https://github.com/rickykubler/CPAC_Group_7/blob/main/CPAC_ProjectReport.pdf).
 
 ###
