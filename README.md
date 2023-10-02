@@ -4,9 +4,9 @@ Utilizing a camera as a sensor to capture the user’s movement, the system proc
 These parameters in turn control MusicVAE (Variational Autoencoder), generating real-time music sequences played in real-time by Max8.
 The audio output also contributes to the creation of a video using TouchDesigner, further enriching the overall sensory experience.<br/><br/>
 This project caters to a wide range of audiences, including artists seeking new forms of expression, an audience eager for immersive experiences, educators interested in interactive teaching tools, technology enthusiasts exploring advanced applications, and the entertainment industry seeking novel ways to engage audiences. Furthermore, it provides a platform for artistic and creative exploration, creating opportunities for the creative community to push beyond traditional boundaries in art and entertainment.<br/><br/>
-<p align="center">
+<!--- <p align="center">
 <img src="img/Keyboard.jpeg" alt="keyboard" width="1200"/>
-</p>
+</p>-->
 
 ## Installation
 Download this repository and all the specific software:
@@ -44,9 +44,9 @@ For Max8 set on the program your IPs on the first lines of blocks. The second li
 <img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
 </p>
 Furthermore, you must run Max8 after the compilation of *body_main.py* and *MusicVAE.py*. Use the START button to make it work.
-<p align="center">
+<!--- <p align="center">
 <img src="img/Max8IPs.jpg" alt="keyboard" width="400"/>
-</p>
+</p> -->
 
 In order to allow communication between the modules you have to set up clients/servers.<br></br>
 For MusicVAE.py are requested as input from the keyboard:
