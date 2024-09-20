@@ -2,7 +2,7 @@
 	"name" : "Moving Sound",
 	"version" : 1,
 	"creationdate" : 3779024510,
-	"modificationdate" : 3779083069,
+	"modificationdate" : 3809697242,
 	"viewrect" : [ 25.0, 81.0, 300.0, 500.0 ],
 	"autoorganize" : 1,
 	"hideprojectwindow" : 0,
@@ -87,22 +87,6 @@
 			}
 
 		}
-,
-		"media" : 		{
-
-		}
-,
-		"code" : 		{
-
-		}
-,
-		"data" : 		{
-
-		}
-,
-		"externals" : 		{
-
-		}
 
 	}
 ,
@@ -114,7 +98,7 @@
 
 	}
 ,
-	"detailsvisible" : 0,
+	"detailsvisible" : 1,
 	"amxdtype" : 0,
 	"readonly" : 0,
 	"devpathtype" : 0,

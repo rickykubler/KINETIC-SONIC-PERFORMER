@@ -1,5 +1,10 @@
 project-venv
 magenta-env
+
 *.pyc
+*.DS_Store
+*.wav
+*.aiff
+
 MusicVAE/content/model_chords_fb64.ckpt.data-00000-of-00001
 3_MUSICVAE/content/model_chords_fb64.ckpt.data-00000-of-00001
