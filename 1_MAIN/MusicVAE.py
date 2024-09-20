@@ -69,6 +69,15 @@ temp_z = np.zeros(shape=(1, TOTAL_STEPS))
 
 # Chord encoding tensor.
 def chord_encoding(chord):
+    """
+    Encodes a chord into a one-hot tensor for use in model generation.
+
+    Args:
+        chord (str): The chord to be encoded (e.g., 'C', 'G7').
+
+    Returns:
+        numpy.ndarray: A tensor of shape (TOTAL_STEPS, CHORD_DEPTH) with one-hot encoded chord values.
+    """
     index = mm.TriadChordOneHotEncoding().encode_event(chord)
     c = np.zeros([TOTAL_STEPS, CHORD_DEPTH])
     c[0, 0] = 1.0
@@ -78,6 +87,16 @@ def chord_encoding(chord):
 
 # Trim sequences to exactly one bar.
 def trim_sequences(seqs, num_seconds=BAR_SECONDS):
+    """
+    Trims each sequence in the list to a specified number of seconds.
+
+    Args:
+        seqs (list): A list of note sequences to be trimmed.
+        num_seconds (float): The duration to trim each sequence to (default is BAR_SECONDS).
+
+    Returns:
+        None: Modifies the sequences in place.
+    """
     for i in range(len(seqs)):
         seqs[i] = mm.extract_subsequence(seqs[i], 0.0, num_seconds)
         seqs[i].total_time = num_seconds
@@ -85,6 +104,16 @@ def trim_sequences(seqs, num_seconds=BAR_SECONDS):
 
 # Consolidate instrument numbers by MIDI program.
 def fix_instruments_for_concatenation(note_sequences):
+    """
+    Consolidates instrument numbers in note sequences by MIDI program, ensuring unique
+    instrument numbers for concatenation.
+
+    Args:
+        note_sequences (list): A list of note sequences to be modified.
+
+    Returns:
+        None: Modifies the instrument numbers in place to ensure proper sequencing for concatenation.
+    """
     instruments = {}
     for i in range(len(note_sequences)):
         for note in note_sequences[i].notes:
@@ -99,14 +128,27 @@ def fix_instruments_for_concatenation(note_sequences):
                 note.instrument = 9
 
 
+
 # Spherical linear interpolation.
 def slerp(p0, p1, t):
-    """Spherical linear interpolation."""
+    """
+    Performs spherical linear interpolation (slerp) between two vectors.
+
+    Args:
+        p0 (numpy.ndarray): The starting vector.
+        p1 (numpy.ndarray): The target vector.
+        t (float): Interpolation factor, typically between 0 and 1. 
+                   A value of 0 returns p0, and a value of 1 returns p1.
+
+    Returns:
+        numpy.ndarray: The interpolated vector between p0 and p1.
+    """
     omega = np.arccos(
         np.dot(np.squeeze(p0 / np.linalg.norm(p0)), np.squeeze(p1 / np.linalg.norm(p1)))
     )
     so = np.sin(omega)
     return np.sin((1.0 - t) * omega) / so * p0 + np.sin(t * omega) / so * p1
+
 
 
 # ---- MAGENTA MODEL SETUP ----
